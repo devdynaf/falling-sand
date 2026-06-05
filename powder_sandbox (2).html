@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>falling-sand — Chunky Powder Simulator</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
+
+        :root {
+            --bg-color: #050608;
+            --panel-bg: rgba(13, 15, 24, 0.85);
+            --panel-accent: #171b2d;
+            --panel-border: rgba(255, 255, 255, 0.05);
+            --accent: #5efaf2;
+            --accent-glow: rgba(94, 250, 242, 0.3);
+            --text-main: #949db1;
+            --text-light: #ffffff;
+            --text-muted: #525a70;
+            --border-radius: 16px;
+            --button-radius: 10px;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(94, 250, 242, 0.03) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(94, 250, 242, 0.02) 0%, transparent 40%),
+                linear-gradient(rgba(255, 255, 255, 0.003) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.003) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 24px 24px, 24px 24px;
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Game Arena Layout */
+        #game-container {
+            flex-grow: 1;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        /* Aspect ratio container guarantees perfect scaling for coordinate mapping */
+        .canvas-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 1080px;
+            aspect-ratio: 16 / 9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 
+                0 30px 80px rgba(0, 0, 0, 0.9), 
+                0 0 0 1px rgba(255, 255, 255, 0.03),
+                0 0 40px rgba(94, 250, 242, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: #000;
+        }
+
+        canvas {
+            background-color: #000000;
+            width: 100%;
+            height: 100%;
+            display: block;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -webkit-crisp-edges;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            cursor: crosshair;
+        }
+
+        /* Sidebar Control Panel */
+        #sidebar {
+            width: 340px;
+            background-color: var(--panel-bg);
+            border-left: 1px solid var(--panel-border);
+            display: flex;
+            flex-direction: column;
+            padding: 30px;
+            box-shadow: -20px 0 50px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+            backdrop-filter: blur(20px);
+        }
+
+        .brand {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--text-light);
+            text-transform: none;
+            letter-spacing: -1px;
+            margin-bottom: 24px;
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--panel-border);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .brand span {
+            color: var(--accent);
+            font-weight: 900;
+            text-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .category-title {
+            font-size: 10px;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 2.5px;
+            margin: 20px 0 10px 4px;
+            font-weight: 800;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .category-title::after {
+            content: '';
+            flex-grow: 1;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(94, 250, 242, 0.15), transparent);
+        }
+
+        .element-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .element-btn {
+            background: rgba(255, 255, 255, 0.015);
+            border: 1px solid var(--panel-border);
+            color: var(--text-main);
+            padding: 11px 14px;
+            border-radius: var(--button-radius);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .element-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), transparent);
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .element-btn:hover {
+            background: rgba(255, 255, 255, 0.03);
+            border-color: rgba(255, 255, 255, 0.12);
+            color: var(--text-light);
+            transform: translateY(-1px);
+        }
+
+        .element-btn:hover::before {
+            opacity: 1;
+        }
+
+        .element-btn.active {
+            background: rgba(94, 250, 242, 0.05);
+            border-color: var(--accent);
+            color: var(--text-light);
+            box-shadow: 
+                0 0 20px rgba(94, 250, 242, 0.08),
+                inset 0 0 10px rgba(94, 250, 242, 0.03);
+        }
+
+        .element-icon {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), filter 0.25s ease;
+        }
+
+        .element-btn.active .element-icon {
+            filter: drop-shadow(0 0 3px var(--accent-glow));
+            transform: scale(1.15);
+        }
+
+        /* Bottom Controls */
+        .actions {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-top: 24px;
+            border-top: 1px solid var(--panel-border);
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, var(--accent) 0%, #3bc6bf 100%);
+            color: #050608;
+            border: none;
+            padding: 14px;
+            border-radius: var(--button-radius);
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 20px rgba(94, 250, 242, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: all 0.6s ease;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1.5px);
+            box-shadow: 
+                0 8px 24px rgba(94, 250, 242, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+
+        .action-btn:hover::after {
+            left: 100%;
+        }
+
+        /* Telemetry Widget (HUD) */
+        #hud {
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            pointer-events: none;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(10, 11, 18, 0.8);
+            padding: 16px 22px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--panel-border);
+            backdrop-filter: blur(12px);
+            z-index: 5;
+            color: var(--text-main);
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.6),
+                0 0 0 1px rgba(255, 255, 255, 0.02);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        #hud div { 
+            display: flex; 
+            justify-content: space-between; 
+            gap: 20px; 
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.03);
+            padding-bottom: 4px;
+        }
+        #hud div:last-child {
+            border: none;
+            padding-bottom: 0;
+        }
+        #hud span { color: var(--accent); font-weight: 700; }
+
+        /* Floating Cursor Tooltip */
+        #brush-tooltip {
+            position: absolute;
+            pointer-events: none;
+            background: var(--panel-accent);
+            color: var(--accent);
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            border: 1px solid var(--accent);
+            opacity: 0;
+            transition: opacity 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: translate(-50%, -150%);
+            z-index: 100;
+            box-shadow: 
+                0 8px 20px rgba(0, 0, 0, 0.6),
+                0 0 8px var(--accent-glow);
+        }
+        
+        .instructions {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 18px;
+            text-align: center;
+            line-height: 1.6;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.01);
+            border-radius: var(--button-radius);
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+        }
+
+        /* Sidebar Scroller Styling */
+        .sidebar-scroller {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-right: 6px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-scroller::-webkit-scrollbar {
+            width: 4px;
+        }
+        .sidebar-scroller::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+        }
+        .sidebar-scroller::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-dim);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <div class="canvas-wrapper">
+            <canvas id="sim-canvas"></canvas>
+        </div>
+        <div id="hud">
+            <div>FPS <span id="fps-counter">60</span></div>
+            <div>Particles <span id="particle-counter">0</span></div>
+            <div>Grid <span style="color: var(--text-light)">240x135</span></div>
+        </div>
+        <div id="brush-tooltip">Size: 4</div>
+    </div>
+
+    <div id="sidebar">
+        <div class="brand">falling-<span>sand</span></div>
+
+        <div class="sidebar-scroller">
+            <div class="category-title">Solids</div>
+            <div class="element-grid">
+                <button class="element-btn" data-id="3">
+                    <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#784f2b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 2a10 10 0 0 0-10 10"/>
+                        <path d="M12 6a6 6 0 0 0-6 6"/>
+                    </svg>
+                    Wood
+                </button>
+                <button class="element-btn" data-id="5">
+                    <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#7a7a7a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3L4 9l3 11h10l3-11z"/>
+                    </svg>
+                    Stone
+                </button>
+                <button class="element-btn" data-id="10">
+                    <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#2cb32c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 21 2c-2.48 4-3 5.5-4.1 11.2A7 7 0 0 1 11 20z"/>
+                        <path d="M9 9.5c0 3-1.5 5.5-4 5.5"/>
+                    </svg>
+                    Plant
+                </button>
+                <button class="element-btn" data-id="12">
+                    <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#abd4ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                        <path d="M3.27 6.96L12 12.01l8.73-5.05"/>
+                        <path d="M12 22.08V12"/>
+                    </svg>
+                    Ice
+                </button>
+                <button class="element-btn" data-id="13">
+                    <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#e1f0ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2s1 7 8 8c-7 1-8 8-8 8s-1-7-8-8c7-1 8-8 8-8z"/>
+                    </svg>
+                    Glass
+                </button>
+            </div>
+
+            <div class="category-title">Powders</div>
+            <div class="element-grid">
+                <button class="element-btn active" data-id="1">
+                    <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#e2be7a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 2h14v4l-5 4 5 4v4H5v-4l5-4-5-4V2z"/>
+                        <path d="M12 12v3M10 18h4"/>
+                    </svg>
+                    Sand
+                </button>
+                <button class="element-btn" data-id="8">
+                    <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#ff4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/>
+                        <path d="M9 9h6v6H9zM12 3v6M12 15v6"/>
+                    </svg>
+                    C-4
+                </button>
+            </div>
+
+            <div class="category-title">Liquids</div>
+            <div class="element-grid">
+                <button class="element-btn" data-id="2">
+                    <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#1e81b0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-13-7-13S5 10.7 5 15a7 7 0 0 0 7 7z"/>
+                    </svg>
+                    Water
+                </button>
+                <button class="element-btn" data-id="6">
+                    <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#8a7355" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-13-7-13S5 10.7 5 15a7 7 0 0 0 7 7z"/>
+                        <path d="M12 18v-3"/>
+                    </svg>
+                    Oil
+                </button>
+                <button class="element-btn" data-id="7">
+                    <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#39ff14" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-13-7-13S5 10.7 5 15a7 7 0 0 0 7 7z"/>
+                        <circle cx="12" cy="15" r="1.5"/>
+                        <circle cx="10" cy="12" r="1"/>
+                    </svg>
+                    Acid
+                </button>
+                <button class="element-btn" data-id="9">
+                    <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#ff4500" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-13-7-13S5 10.7 5 15a7 7 0 0 0 7 7z"/>
+                        <path d="M12 11c-1 1-2 2-2 3.5s1 2.5 2 2.5 2-1 2-2.5S13 12 12 11z"/>
+                    </svg>
+                    Lava
+                </button>
+            </div>
+
+            <div class="category-title">Gases</div>
+            <div class="element-grid">
+                <button class="element-btn" data-id="4">
+                    <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#ff5e00" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+                    </svg>
+                    Fire
+                </button>
+                <button class="element-btn" data-id="11">
+                    <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#cccccc" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 21a2 2 0 0 0 2-2V5a2 2 0 0 0-4 0v12M17 17a2 2 0 0 0 2-2V9a2 2 0 0 0-4 0v4M7 19a2 2 0 0 0 2-2v-4a2 2 0 0 0-4 0v2"/>
+                    </svg>
+                    Steam
+                </button>
+            </div>
+            
+            <div class="category-title">Tools</div>
+            <div class="element-grid">
+                <button class="element-btn" data-id="0">
+                    <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#ff4ea3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 20H7L3 16l10-10 7 7-4 4zM20 20l-4-4"/>
+                    </svg>
+                    Eraser
+                </button>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="action-btn" id="btn-clear">Reset</button>
+        </div>
+        
+        <div class="instructions">
+            Left Click: Paint / Hold to Pour<br>
+            Right Click: Quick Erase<br>
+            Scroll Wheel: Change Brush Size
+        </div>
+    </div>
+
+<script>
+    // --- Resolution Constants ---
+    // Chunky pixel-art 240x135 viewport (Perfect 16:9 ratio)
+    const WIDTH = 240;
+    const HEIGHT = 135;
+    
+    // Chunk size adapted for micro resolution
+    const CHUNK_SIZE = 5;
+    const CHUNKS_X = Math.ceil(WIDTH / CHUNK_SIZE);
+    const CHUNKS_Y = Math.ceil(HEIGHT / CHUNK_SIZE);
+
+    const EL = {
+        EMPTY: 0, SAND: 1, WATER: 2, WOOD: 3, FIRE: 4, STONE: 5, 
+        OIL: 6, ACID: 7, C4: 8, LAVA: 9, PLANT: 10, STEAM: 11, ICE: 12, GLASS: 13, BORDER: 14
+    };
+
+    // ABGR Palette colors (A-B-G-R)
+    const COLORS = new Uint32Array([
+        0x00000000, // 0: Empty (Fully transparent)
+        0xFF7abeec, // 1: Sand (ABGR for #ecbe7a, a beautiful light brown/warm tan)
+        0xFFb0811e, // 2: Water
+        0xFF2b4f78, // 3: Wood
+        0xFF005eff, // 4: Fire
+        0xFF7a7a7a, // 5: Stone
+        0xFF313c4a, // 6: Oil
+        0xFF14ff39, // 7: Acid
+        0xFF484848, // 8: C-4
+        0xFF0045ff, // 9: Lava
+        0xFF2cb32c, // 10: Plant
+        0xFFcccccc, // 11: Steam
+        0xFFffd4ab, // 12: Ice
+        0xFFffe1c0, // 13: Glass
+        0xFF443a30  // 14: Border (Metallic Gray Boundary)
+    ]);
+
+    const canvas = document.getElementById("sim-canvas");
+    const ctx = canvas.getContext("2d", { alpha: false, desynchronized: true });
+    
+    let grid = new Uint8Array(WIDTH * HEIGHT);
+    let updated = new Uint8Array(WIDTH * HEIGHT);
+    let extraData = new Uint8Array(WIDTH * HEIGHT);
+    
+    let chunkActiveCurrent = new Uint8Array(CHUNKS_X * CHUNKS_Y);
+    let chunkActiveNext = new Uint8Array(CHUNKS_X * CHUNKS_Y);
+    
+    let imgData, data32;
+
+    // Interaction Metrics
+    let currentElement = EL.SAND;
+    let brushSize = 4;
+    let isDrawing = false;
+    let drawButton = 0; // 0: Left, 2: Right (Erase)
+    
+    let mouseX = 0;
+    let mouseY = 0;
+    let currentCanvasX = -1;
+    let currentCanvasY = -1;
+    let lastDrawX = -1;
+    let lastDrawY = -1;
+
+    // HUD element hooks
+    const fpsCounter = document.getElementById("fps-counter");
+    const particleCounter = document.getElementById("particle-counter");
+    const brushTooltip = document.getElementById("brush-tooltip");
+    let tooltipTimer;
+
+    function buildScreenBorders() {
+        // Clear all elements first
+        grid.fill(EL.EMPTY);
+        extraData.fill(0);
+        chunkActiveCurrent.fill(0);
+        chunkActiveNext.fill(0);
+
+        // Render solid indestructible BORDER lines around Left, Right and Bottom edges
+        const borderThickness = 2;
+
+        for (let y = 0; y < HEIGHT; y++) {
+            for (let x = 0; x < WIDTH; x++) {
+                if (y >= HEIGHT - borderThickness || x < borderThickness || x >= WIDTH - borderThickness) {
+                    const i = y * WIDTH + x;
+                    grid[i] = EL.BORDER;
+                }
+            }
+        }
+    }
+
+    function init() {
+        canvas.width = WIDTH;
+        canvas.height = HEIGHT;
+        imgData = ctx.createImageData(WIDTH, HEIGHT);
+        data32 = new Uint32Array(imgData.data.buffer);
+        
+        // Element Grid Button Switcher
+        document.querySelectorAll('.element-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.element-btn').forEach(b => b.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+                currentElement = parseInt(e.currentTarget.dataset.id);
+            });
+        });
+
+        document.getElementById('btn-clear').addEventListener('click', () => {
+            buildScreenBorders();
+        });
+
+        // Initialize world with boundary structures
+        buildScreenBorders();
+        requestAnimationFrame(gameLoop);
+    }
+
+    // --- Inputs Mapping & Tracking ---
+    function updateTooltipPosition() {
+        brushTooltip.style.left = `${mouseX}px`;
+        brushTooltip.style.top = `${mouseY}px`;
+    }
+
+    // Tooltip trigger
+    function showTooltip() {
+        brushTooltip.innerText = `Size: ${brushSize}`;
+        brushTooltip.style.opacity = "1";
+        updateTooltipPosition();
+        
+        clearTimeout(tooltipTimer);
+        tooltipTimer = setTimeout(() => {
+            brushTooltip.style.opacity = "0";
+        }, 1000);
+    }
+
+    window.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        updateTooltipPosition();
+
+        const pos = getCanvasPos(e);
+        currentCanvasX = pos.x;
+        currentCanvasY = pos.y;
+    });
+
+    canvas.addEventListener('mousedown', (e) => {
+        isDrawing = true;
+        drawButton = e.button;
+        const pos = getCanvasPos(e);
+        currentCanvasX = pos.x;
+        currentCanvasY = pos.y;
+        lastDrawX = pos.x;
+        lastDrawY = pos.y;
+    });
+
+    window.addEventListener('mouseup', () => {
+        isDrawing = false;
+        lastDrawX = -1;
+        lastDrawY = -1;
+    });
+
+    canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+    // Exclusive brush size handler via Scroll Wheel
+    window.addEventListener('wheel', (e) => {
+        if (e.target === canvas) {
+            e.preventDefault();
+            if (e.deltaY < 0) {
+                brushSize = Math.min(15, brushSize + 1); // Capped maximum for 240x135
+            } else {
+                brushSize = Math.max(1, brushSize - 1);
+            }
+            showTooltip();
+        }
+    }, { passive: false });
+
+    // Pixel-perfect conversion mapping CSS box directly to internal 240x135 coordinates
+    function getCanvasPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = WIDTH / rect.width;
+        const scaleY = HEIGHT / rect.height;
+        return {
+            x: Math.floor((e.clientX - rect.left) * scaleX),
+            y: Math.floor((e.clientY - rect.top) * scaleY)
+        };
+    }
+
+    // --- Active Spatial Chunking ---
+    function activatePixel(x, y) {
+        if (x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT) {
+            const cx = (x / CHUNK_SIZE) | 0;
+            const cy = (y / CHUNK_SIZE) | 0;
+            chunkActiveCurrent[cy * CHUNKS_X + cx] = 1;
+            chunkActiveNext[cy * CHUNKS_X + cx] = 1;
+        }
+    }
+
+    function activateNeighbors(cx, cy) {
+        for (let dy = -1; dy <= 1; dy++) {
+            for (let dx = -1; dx <= 1; dx++) {
+                const nx = cx + dx;
+                const ny = cy + dy;
+                if (nx >= 0 && nx < CHUNKS_X && ny >= 0 && ny < CHUNKS_Y) {
+                    chunkActiveNext[ny * CHUNKS_X + nx] = 1;
+                }
+            }
+        }
+    }
+
+    // --- Draw / Erase Utilities ---
+    function setPixel(x, y, element) {
+        if (x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT) {
+            const i = y * WIDTH + x;
+            
+            // Indestructible border cannot be overwritten unless cleared or erased
+            if (grid[i] === EL.BORDER && element !== EL.EMPTY) {
+                return;
+            }
+            
+            grid[i] = element;
+            extraData[i] = (element === EL.FIRE || element === EL.STEAM) ? (Math.random() * 30 + 20 | 0) : 0;
+            activatePixel(x, y);
+        }
+    }
+
+    function drawCircle(cx, cy) {
+        // If drawButton is 2 (Right Click) or the user actively selected the Eraser (0), then erase
+        const drawId = (drawButton === 2 || currentElement === EL.EMPTY) ? EL.EMPTY : currentElement;
+        const radiusSq = brushSize * brushSize;
+        
+        for (let y = -brushSize; y <= brushSize; y++) {
+            for (let x = -brushSize; x <= brushSize; x++) {
+                if (x * x + y * y <= radiusSq) {
+                    const px = cx + x;
+                    const py = cy + y;
+                    
+                    if (px >= 0 && px < WIDTH && py >= 0 && py < HEIGHT) {
+                        const targetId = grid[py * WIDTH + px];
+                        
+                        // Eraser overrides borders, normal drawing respects borders and static solids
+                        if (drawId !== EL.EMPTY) {
+                            if (targetId === EL.BORDER || targetId === EL.GLASS || targetId === EL.WOOD || targetId === EL.STONE) {
+                                continue;
+                            }
+                        } else {
+                            // Eraser removes anything except border
+                            if (targetId === EL.BORDER) continue;
+                        }
+                        
+                        // Introduce pour physics noise
+                        if (drawId !== EL.EMPTY && drawId !== EL.WOOD && drawId !== EL.STONE && drawId !== EL.GLASS && drawId !== EL.ICE) {
+                            if (Math.random() > 0.25) {
+                                setPixel(px, py, drawId);
+                            }
+                        } else {
+                            setPixel(px, py, drawId);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    function drawLine(x0, y0, x1, y1) {
+        const dx = Math.abs(x1 - x0);
+        const dy = Math.abs(y1 - y0);
+        const sx = (x0 < x1) ? 1 : -1;
+        const sy = (y0 < y1) ? 1 : -1;
+        let err = dx - dy;
+
+        while (true) {
+            drawCircle(x0, y0);
+            if (x0 === x1 && y0 === y1) break;
+            const e2 = 2 * err;
+            if (e2 > -dy) { err -= dy; x0 += sx; }
+            if (e2 < dx) { err += dx; y0 += sy; }
+        }
+    }
+
+    // Dispatches painting requests every frame
+    function handleActiveSpawning() {
+        if (isDrawing && currentCanvasX !== -1 && currentCanvasY !== -1) {
+            if (lastDrawX === -1) lastDrawX = currentCanvasX;
+            if (lastDrawY === -1) lastDrawY = currentCanvasY;
+            
+            drawLine(lastDrawX, lastDrawY, currentCanvasX, currentCanvasY);
+            
+            lastDrawX = currentCanvasX;
+            lastDrawY = currentCanvasY;
+        }
+    }
+
+    // --- Chunky Cellular Automata Physics ---
+    function isEmpty(i) { return grid[i] === EL.EMPTY || grid[i] === EL.FIRE || grid[i] === EL.STEAM; }
+    function isLiquid(i) { return grid[i] === EL.WATER || grid[i] === EL.OIL || grid[i] === EL.ACID || grid[i] === EL.LAVA; }
+    function isFlammable(i) { return grid[i] === EL.WOOD || grid[i] === EL.PLANT || grid[i] === EL.OIL || grid[i] === EL.C4; }
+
+    function move(src, dst) {
+        grid[dst] = grid[src];
+        extraData[dst] = extraData[src];
+        grid[src] = EL.EMPTY;
+        updated[dst] = 1;
+        
+        activatePixel(src % WIDTH, (src / WIDTH) | 0);
+        activatePixel(dst % WIDTH, (dst / WIDTH) | 0);
+    }
+
+    function swap(src, dst) {
+        const temp = grid[src];
+        const tempEx = extraData[src];
+        
+        grid[src] = grid[dst];
+        extraData[src] = extraData[dst];
+        
+        grid[dst] = temp;
+        extraData[dst] = tempEx;
+        
+        updated[dst] = 1;
+        updated[src] = 1;
+        
+        activatePixel(src % WIDTH, (src / WIDTH) | 0);
+        activatePixel(dst % WIDTH, (dst / WIDTH) | 0);
+    }
+
+    function stepPhysics() {
+        updated.fill(0);
+        chunkActiveNext.fill(0);
+        
+        for (let cy = CHUNKS_Y - 1; cy >= 0; cy--) {
+            for (let cx = 0; cx < CHUNKS_X; cx++) {
+                const chunkIdx = cy * CHUNKS_X + cx;
+                if (!chunkActiveCurrent[chunkIdx]) continue;
+                
+                let chunkChanged = false;
+                const startY = cy * CHUNK_SIZE;
+                const endY = Math.min(HEIGHT, startY + CHUNK_SIZE);
+                const startX = cx * CHUNK_SIZE;
+                const endX = Math.min(WIDTH, startX + CHUNK_SIZE);
+                
+                const dir = Math.random() > 0.5 ? 1 : -1;
+                const iterateStartX = dir === 1 ? startX : endX - 1;
+                const iterateEndX = dir === 1 ? endX : startX - 1;
+
+                for (let y = endY - 1; y >= startY; y--) {
+                    for (let x = iterateStartX; x !== iterateEndX; x += dir) {
+                        const i = y * WIDTH + x;
+                        const id = grid[i];
+
+                        if (id === EL.EMPTY || id === EL.BORDER || updated[i]) continue;
+
+                        chunkChanged = true;
+
+                        const below = i + WIDTH;
+                        const bLeft = below - 1;
+                        const bRight = below + 1;
+                        const left = i - 1;
+                        const right = i + 1;
+                        const up = i - WIDTH;
+
+                        // --- POWDERS (Sand, C-4) ---
+                        if (id === EL.SAND || id === EL.C4) {
+                            if (y < HEIGHT - 1) {
+                                if (isEmpty(below)) { 
+                                    move(i, below); 
+                                } else if (isLiquid(below)) { 
+                                    swap(i, below); 
+                                } else {
+                                    const canL = x > 0 && isEmpty(bLeft);
+                                    const canR = x < WIDTH - 1 && isEmpty(bRight);
+                                    
+                                    if (canL && canR) { 
+                                        move(i, Math.random() > 0.5 ? bLeft : bRight); 
+                                    } else if (canL) { 
+                                        move(i, bLeft); 
+                                    } else if (canR) { 
+                                        move(i, bRight); 
+                                    } else {
+                                        const liqL = x > 0 && isLiquid(bLeft);
+                                        const liqR = x < WIDTH - 1 && isLiquid(bRight);
+                                        if (liqL && liqR) { 
+                                            swap(i, Math.random() > 0.5 ? bLeft : bRight); 
+                                        } else if (liqL) { 
+                                            swap(i, bLeft); 
+                                        } else if (liqR) { 
+                                            swap(i, bRight); 
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // --- LIQUIDS (Water, Oil, Acid, Lava) ---
+                        else if (id === EL.WATER || id === EL.OIL || id === EL.ACID || id === EL.LAVA) {
+                            
+                            // Reactions
+                            if (id === EL.ACID) {
+                                const neighbors = [below, up, left, right];
+                                let dissolved = false;
+                                for (let n of neighbors) {
+                                    if (n >= 0 && n < WIDTH * HEIGHT && grid[n] !== EL.EMPTY && grid[n] !== EL.ACID && grid[n] !== EL.GLASS && grid[n] !== EL.BORDER) {
+                                        if (Math.random() > 0.25) {
+                                            grid[n] = EL.EMPTY; 
+                                            activatePixel(n % WIDTH, (n / WIDTH) | 0);
+                                            dissolved = true;
+                                        }
+                                    }
+                                }
+                                if (dissolved) {
+                                    grid[i] = EL.EMPTY;
+                                    activatePixel(x, y);
+                                    continue;
+                                }
+                            }
+
+                            if (id === EL.LAVA) {
+                                const neighbors = [below, up, left, right];
+                                for (let n of neighbors) {
+                                    if (n >= 0 && n < WIDTH * HEIGHT) {
+                                        const nId = grid[n];
+                                        if (nId === EL.WATER) {
+                                            grid[i] = EL.STONE; 
+                                            grid[n] = EL.STEAM; 
+                                            extraData[n] = Math.random() * 30 + 30 | 0;
+                                            activatePixel(i % WIDTH, (i / WIDTH) | 0);
+                                            activatePixel(n % WIDTH, (n / WIDTH) | 0);
+                                            break;
+                                        } else if (nId === EL.ICE) {
+                                            grid[n] = EL.WATER;
+                                            activatePixel(n % WIDTH, (n / WIDTH) | 0);
+                                        } else if (isFlammable(n)) {
+                                            grid[n] = EL.FIRE;
+                                            extraData[n] = Math.random() * 20 + 20 | 0;
+                                            activatePixel(n % WIDTH, (n / WIDTH) | 0);
+                                        }
+                                    }
+                                }
+                                if (grid[i] === EL.STONE) continue;
+                            }
+
+                            // Water Freezing Interaction when touching Ice
+                            if (id === EL.WATER) {
+                                let hasIceNeighbor = false;
+                                if (y < HEIGHT - 1 && grid[below] === EL.ICE) hasIceNeighbor = true;
+                                if (y > 0 && grid[up] === EL.ICE) hasIceNeighbor = true;
+                                if (x > 0 && grid[left] === EL.ICE) hasIceNeighbor = true;
+                                if (x < WIDTH - 1 && grid[right] === EL.ICE) hasIceNeighbor = true;
+
+                                if (hasIceNeighbor && Math.random() > 0.15) {
+                                    grid[i] = EL.ICE;
+                                    activatePixel(x, y);
+                                    // Wake up direct neighbors to spread freeze smoothly
+                                    if (y < HEIGHT - 1) activatePixel(x, y + 1);
+                                    if (y > 0) activatePixel(x, y - 1);
+                                    if (x > 0) activatePixel(x - 1, y);
+                                    if (x < WIDTH - 1) activatePixel(x + 1, y);
+                                    continue;
+                                }
+                            }
+
+                            // Dynamic Lateral Displacement (Fluid spread speed adjusted for 360p viewport)
+                            if (y < HEIGHT - 1) {
+                                if (isEmpty(below)) { 
+                                    move(i, below); 
+                                } else if (id === EL.WATER && grid[below] === EL.OIL) {
+                                    swap(i, below);
+                                } else if (id === EL.LAVA && (grid[below] === EL.WATER || grid[below] === EL.OIL)) {
+                                    swap(i, below);
+                                } else {
+                                    const canL = x > 0 && isEmpty(bLeft);
+                                    const canR = x < WIDTH - 1 && isEmpty(bRight);
+                                    
+                                    if (canL && canR) { 
+                                        move(i, Math.random() > 0.5 ? bLeft : bRight); 
+                                    } else if (canL) { 
+                                        move(i, bLeft); 
+                                    } else if (canR) { 
+                                        move(i, bRight); 
+                                    } else {
+                                        // Dynamic spread searches
+                                        const sideDir = Math.random() > 0.5 ? 1 : -1;
+                                        let handled = false;
+                                        const spreadRange = id === EL.LAVA ? 1 : 5;
+                                        
+                                        for (let step = 1; step <= spreadRange; step++) {
+                                            const targetX = x + sideDir * step;
+                                            if (targetX < 0 || targetX >= WIDTH) break;
+                                            const targetIdx = y * WIDTH + targetX;
+                                            if (isEmpty(targetIdx)) {
+                                                move(i, targetIdx);
+                                                handled = true;
+                                                break;
+                                            } else if (!isLiquid(targetIdx)) {
+                                                break;
+                                            }
+                                        }
+                                        if (!handled) {
+                                            for (let step = 1; step <= spreadRange; step++) {
+                                                const targetX = x - sideDir * step;
+                                                if (targetX < 0 || targetX >= WIDTH) break;
+                                                const targetIdx = y * WIDTH + targetX;
+                                                if (isEmpty(targetIdx)) {
+                                                    move(i, targetIdx);
+                                                    break;
+                                                } else if (!isLiquid(targetIdx)) {
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // --- GASES & EXOTICS (Fire, Steam) ---
+                        else if (id === EL.FIRE || id === EL.STEAM) {
+                            extraData[i]--;
+                            if (extraData[i] <= 0) {
+                                grid[i] = (id === EL.STEAM && Math.random() > 0.75) ? EL.WATER : EL.EMPTY;
+                                activatePixel(x, y);
+                                continue;
+                            }
+
+                            if (id === EL.FIRE) {
+                                const neighbors = [below, up, left, right, bLeft, bRight, i - WIDTH - 1, i - WIDTH + 1];
+                                for (let n of neighbors) {
+                                    if (n >= 0 && n < WIDTH * HEIGHT) {
+                                        const targetId = grid[n];
+                                        if (isFlammable(n)) {
+                                            if (targetId === EL.C4) {
+                                                // High-impact localized detonations
+                                                for (let rY = -8; rY <= 8; rY++) {
+                                                    for (let rX = -8; rX <= 8; rX++) {
+                                                        if (rX * rX + rY * rY < 64) {
+                                                            const exIdx = i + rX + rY * WIDTH;
+                                                            if (exIdx >= 0 && exIdx < WIDTH * HEIGHT && grid[exIdx] !== EL.GLASS && grid[exIdx] !== EL.BORDER) {
+                                                                grid[exIdx] = EL.FIRE;
+                                                                extraData[exIdx] = Math.random() * 20 + 15 | 0;
+                                                                activatePixel(exIdx % WIDTH, (exIdx / WIDTH) | 0);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            } else {
+                                                grid[n] = EL.FIRE;
+                                                extraData[n] = Math.random() * 25 + 20 | 0;
+                                                activatePixel(n % WIDTH, (n / WIDTH) | 0);
+                                            }
+                                        } else if (targetId === EL.WATER) {
+                                            grid[i] = EL.STEAM;
+                                            extraData[i] = Math.random() * 25 + 25 | 0;
+                                            activatePixel(i % WIDTH, (i / WIDTH) | 0);
+                                            break;
+                                        } else if (targetId === EL.ICE) {
+                                            grid[n] = EL.WATER;
+                                            activatePixel(n % WIDTH, (n / WIDTH) | 0);
+                                        }
+                                    }
+                                }
+                                if (grid[i] === EL.STEAM) continue;
+                            }
+
+                            // Rising Drift
+                            if (y > 0) {
+                                const upL = up - 1;
+                                const upR = up + 1;
+                                let floated = false;
+
+                                if (isEmpty(up)) { 
+                                    move(i, up); 
+                                    floated = true; 
+                                } else {
+                                    const canL = x > 0 && isEmpty(upL);
+                                    const canR = x < WIDTH - 1 && isEmpty(upR);
+                                    if (canL && canR) { 
+                                        move(i, Math.random() > 0.5 ? upL : upR); 
+                                        floated = true; 
+                                    } else if (canL) { 
+                                        move(i, upL); 
+                                        floated = true; 
+                                    } else if (canR) { 
+                                        move(i, upR); 
+                                        floated = true; 
+                                    }
+                                }
+
+                                if (!floated && Math.random() > 0.4) {
+                                    const canL = x > 0 && isEmpty(left);
+                                    const canR = x < WIDTH - 1 && isEmpty(right);
+                                    if (canL && canR) { 
+                                        move(i, Math.random() > 0.5 ? left : right); 
+                                    } else if (canL) { 
+                                        move(i, left); 
+                                    } else if (canR) { 
+                                        move(i, right); 
+                                    }
+                                }
+                            }
+                        }
+
+                        // --- PLANT GROWTH SYSTEM ---
+                        else if (id === EL.PLANT) {
+                            if (Math.random() > 0.94) {
+                                const neighbors = [below, up, left, right];
+                                for (let n of neighbors) {
+                                    if (n >= 0 && n < WIDTH * HEIGHT) {
+                                        if (grid[n] === EL.WATER) {
+                                            grid[n] = EL.PLANT;
+                                            activatePixel(n % WIDTH, (n / WIDTH) | 0);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (chunkChanged) {
+                    activateNeighbors(cx, cy);
+                }
+            }
+        }
+
+        const temp = chunkActiveCurrent;
+        chunkActiveCurrent = chunkActiveNext;
+        chunkActiveNext = temp;
+    }
+
+    // --- Fast Color Injection Frame Render ---
+    let lastTime = performance.now();
+    let frameCount = 0;
+    
+    function render() {
+        let activeCount = 0;
+        
+        for (let i = 0; i < WIDTH * HEIGHT; i++) {
+            const el = grid[i];
+            if (el !== EL.EMPTY) {
+                if (el !== EL.BORDER) activeCount++;
+                let color = COLORS[el];
+                
+                // Add retro active grain jitter
+                if (el === EL.FIRE || el === EL.LAVA) {
+                    if (Math.random() > 0.6) {
+                         color = (el === EL.FIRE) ? 0xFF00bbff : 0xFF0055ff;
+                    }
+                } else if (el === EL.WATER) {
+                    if (Math.random() > 0.97) color = 0xFFc59022; // Micro glimmers
+                } else if (el === EL.PLANT) {
+                    if (Math.random() > 0.95) color = 0xFF1b9e1b;
+                }
+
+                data32[i] = color;
+            } else {
+                data32[i] = 0xFF000000; // Deep space black
+            }
+        }
+
+        ctx.putImageData(imgData, 0, 0);
+        return activeCount;
+    }
+
+    function gameLoop(currentTime) {
+        handleActiveSpawning();
+        stepPhysics();
+        const activeCount = render();
+
+        frameCount++;
+        if (currentTime - lastTime >= 500) {
+            const fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
+            fpsCounter.innerText = fps;
+            particleCounter.innerText = activeCount.toLocaleString();
+            frameCount = 0;
+            lastTime = currentTime;
+        }
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    init();
+</script>
+</body>
+</html>
