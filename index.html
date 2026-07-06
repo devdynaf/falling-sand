@@ -2,32 +2,36 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
     <!-- Primary SEO -->
-    <title>Falling Sand Simulator — Free Browser Particle Physics Game | devdynaf</title>
-    <meta name="description" content="A free browser-based falling sand simulator. Paint sand, water, fire, lava, acid, C-4 and more, then watch real-time cellular automata physics react, burn, freeze, and flow. No download, no install — runs instantly in your browser.">
-    <meta name="keywords" content="falling sand simulator, sand game, particle simulator, physics sandbox, cellular automata, powder game, browser game, falling sand game online">
+    <title>Falling Sand Simulator — Paint Sand, Water, Fire & More | devdynaf</title>
+    <meta name="description" content="Free browser falling sand game with 24 elements: sand, water, fire, lava, acid, ice, snow, gunpowder, methane, void and more. Real-time particle physics — no download, runs instantly on desktop and mobile.">
+    <meta name="keywords" content="falling sand simulator, falling sand game, sand game online, powder game, particle physics sandbox, cellular automata game, browser physics game, sand water fire game, powder toy online, devdynaf">
     <meta name="author" content="devdynaf">
-    <meta name="robots" content="index, follow, max-image-preview:large">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <link rel="canonical" href="https://devdynaf.github.io/falling-sand/">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://devdynaf.github.io/falling-sand/">
-    <meta property="og:title" content="Falling Sand Simulator — Free Browser Particle Physics Game">
-    <meta property="og:description" content="Paint sand, water, fire, lava, acid, and more in this free browser-based falling sand simulator with real-time cellular automata physics. No download needed.">
-    <meta property="og:site_name" content="devdynaf">
+    <meta property="og:title" content="Falling Sand Simulator — 24 Elements, Free Browser Physics Game">
+    <meta property="og:description" content="Paint sand, water, fire, lava, acid, snow, gunpowder, methane and more. Watch 24 elements react in real-time cellular automata physics. Free, no download, works on mobile.">
+    <meta property="og:site_name" content="DYNAF.GAMES">
     <meta property="og:locale" content="en_US">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Falling Sand Simulator — Free Browser Particle Physics Game">
-    <meta name="twitter:description" content="Paint sand, water, fire, lava, acid, and more in this free browser-based falling sand simulator with real-time cellular automata physics. No download needed.">
+    <meta name="twitter:site" content="@devdynaf">
+    <meta name="twitter:title" content="Falling Sand Simulator — 24 Elements, Free Browser Physics Game">
+    <meta name="twitter:description" content="Paint sand, water, fire, lava, acid, snow, gunpowder, methane and more. 24 interacting elements, real-time physics, free and instant in your browser.">
 
     <!-- Theme / mobile -->
     <meta name="theme-color" content="#07080a">
     <meta name="color-scheme" content="dark">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <!-- Structured data -->
     <script type="application/ld+json">
@@ -35,26 +39,37 @@
         "@context": "https://schema.org",
         "@type": "WebApplication",
         "name": "Falling Sand Simulator",
+        "alternateName": ["Sand Game", "Powder Game", "Particle Physics Sandbox"],
         "url": "https://devdynaf.github.io/falling-sand/",
         "applicationCategory": "Game",
+        "applicationSubCategory": "Simulation Game",
         "operatingSystem": "Any",
-        "browserRequirements": "Requires HTML5 Canvas support",
-        "description": "A free browser-based falling sand simulator featuring real-time cellular automata physics. Paint sand, water, fire, lava, acid, ice, and more, and watch elements react, burn, freeze, and flow.",
+        "browserRequirements": "Requires HTML5 Canvas and JavaScript",
+        "description": "A free browser-based falling sand simulator with 24 elements including sand, water, fire, lava, acid, ice, snow, gunpowder, methane, void, and more. Features real-time cellular automata physics with element interactions like combustion, freezing, melting, and chemical reactions. Works on desktop and mobile.",
+        "featureList": "24 interactive elements, real-time physics, mobile touch support, pinch-to-zoom brush, no download required",
         "offers": {
             "@type": "Offer",
             "price": "0",
-            "priceCurrency": "USD"
+            "priceCurrency": "USD",
+            "availability": "https://schema.org/InStock"
         },
         "author": {
             "@type": "Person",
             "name": "devdynaf",
             "url": "https://devdynaf.github.io/"
         },
+        "publisher": {
+            "@type": "Organization",
+            "name": "DYNAF.GAMES",
+            "url": "https://devdynaf.github.io/"
+        },
         "isPartOf": {
             "@type": "WebSite",
-            "name": "devdynaf",
+            "name": "DYNAF.GAMES",
             "url": "https://devdynaf.github.io/"
-        }
+        },
+        "genre": ["Simulation", "Sandbox", "Physics"],
+        "keywords": "falling sand, sand game, powder game, particle simulator, physics sandbox, cellular automata"
     }
     </script>
 
@@ -74,6 +89,9 @@
             --text-bright: #f2f6ee;
             --text-dim: #5a6058;
             --radius: 2px;
+            --topbar-h: 48px;
+            --mobile-toolbar-h: 52px;
+            --mobile-palette-h: 300px;
         }
 
         * {
@@ -81,13 +99,14 @@
             user-select: none;
             margin: 0;
             padding: 0;
+            -webkit-tap-highlight-color: transparent;
         }
 
         html, body {
             background: var(--bg);
             color: var(--text);
             font-family: 'DM Mono', monospace;
-            height: 100vh;
+            height: 100dvh;
             overflow: hidden;
         }
 
@@ -97,7 +116,7 @@
             position: relative;
         }
 
-        /* Grain + scanline overlay across the whole app */
+        /* Grain overlay */
         body::before {
             content: '';
             position: fixed;
@@ -126,13 +145,13 @@
             mix-blend-mode: overlay;
         }
 
-        /* --- Top bar --- */
+        /* ============ TOP BAR ============ */
         #topbar {
             display: flex;
             align-items: center;
-            gap: 18px;
-            padding: 0 22px;
-            height: 56px;
+            gap: 14px;
+            padding: 0 16px;
+            height: var(--topbar-h);
             flex-shrink: 0;
             background: var(--panel);
             border-bottom: 1px solid var(--line);
@@ -142,14 +161,14 @@
         #back-btn {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             color: var(--text-dim);
             background: transparent;
             border: 1px solid var(--line);
-            padding: 8px 14px;
+            padding: 6px 11px;
             border-radius: var(--radius);
             font-family: 'DM Mono', monospace;
-            font-size: 11px;
+            font-size: 10px;
             letter-spacing: 1px;
             text-transform: uppercase;
             text-decoration: none;
@@ -158,46 +177,59 @@
             flex-shrink: 0;
         }
 
-        #back-btn:hover {
-            color: var(--acid);
-            border-color: var(--acid-dim);
-        }
-
-        #back-btn svg {
-            width: 13px;
-            height: 13px;
-            flex-shrink: 0;
-        }
+        #back-btn:hover { color: var(--acid); border-color: var(--acid-dim); }
+        #back-btn svg { width: 12px; height: 12px; flex-shrink: 0; }
 
         .topbar-divider {
             width: 1px;
-            height: 24px;
+            height: 20px;
             background: var(--line);
             flex-shrink: 0;
         }
 
         #topbar .brand {
             font-family: 'Bebas Neue', sans-serif;
-            font-size: 24px;
+            font-size: 22px;
             letter-spacing: 2px;
             color: var(--text-bright);
             white-space: nowrap;
         }
 
-        #topbar .brand span {
-            color: var(--acid);
-            text-shadow: 0 0 14px var(--acid-glow);
-        }
+        #topbar .brand span { color: var(--acid); text-shadow: 0 0 14px var(--acid-glow); }
 
         #topbar .tagline {
-            font-size: 10px;
+            font-size: 9px;
             letter-spacing: 2px;
             text-transform: uppercase;
             color: var(--text-dim);
             white-space: nowrap;
         }
 
-        /* --- Main layout --- */
+        /* HUD in topbar on mobile */
+        #topbar-hud {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 10px;
+        }
+
+        #topbar-hud .hud-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        #topbar-hud .hud-label {
+            color: var(--text-dim);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-size: 9px;
+        }
+
+        #topbar-hud .hud-val { color: var(--acid); font-weight: 500; }
+
+        /* ============ MAIN LAYOUT ============ */
         #main {
             flex: 1;
             display: flex;
@@ -210,8 +242,9 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 32px;
+            padding: 24px;
             min-width: 0;
+            min-height: 0;
         }
 
         .canvas-wrapper {
@@ -240,11 +273,11 @@
             image-rendering: pixelated;
             image-rendering: crisp-edges;
             cursor: crosshair;
+            touch-action: none;
         }
 
-        /* Corner ticks on the canvas frame, like a viewfinder */
-        .canvas-wrapper::before,
-        .canvas-wrapper::after {
+        /* Corner ticks */
+        .canvas-wrapper::before, .canvas-wrapper::after {
             content: '';
             position: absolute;
             width: 14px;
@@ -254,81 +287,60 @@
             pointer-events: none;
             z-index: 6;
         }
-        .canvas-wrapper::before {
-            top: 8px;
-            left: 8px;
-            border-right: none;
-            border-bottom: none;
-        }
-        .canvas-wrapper::after {
-            bottom: 8px;
-            right: 8px;
-            border-left: none;
-            border-top: none;
-        }
+        .canvas-wrapper::before { top: 8px; left: 8px; border-right: none; border-bottom: none; }
+        .canvas-wrapper::after { bottom: 8px; right: 8px; border-left: none; border-top: none; }
 
-        /* --- Sidebar --- */
+        /* ============ DESKTOP SIDEBAR ============ */
         #sidebar {
-            width: 320px;
+            width: 280px;
             background: var(--panel);
             border-left: 1px solid var(--line);
             display: flex;
             flex-direction: column;
-            padding: 22px 22px 18px;
+            padding: 18px 18px 14px;
             z-index: 10;
             flex-shrink: 0;
         }
 
         .category-title {
             font-family: 'Bebas Neue', sans-serif;
-            font-size: 14px;
+            font-size: 13px;
             letter-spacing: 3px;
             color: var(--acid);
             text-transform: uppercase;
-            margin: 18px 0 8px 0;
+            margin: 16px 0 7px 0;
             display: flex;
             align-items: center;
             gap: 8px;
         }
         .category-title:first-child { margin-top: 0; }
-
-        .category-title::after {
-            content: '';
-            flex-grow: 1;
-            height: 1px;
-            background: var(--line);
-        }
+        .category-title::after { content: ''; flex-grow: 1; height: 1px; background: var(--line); }
 
         .element-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 6px;
-            margin-bottom: 2px;
+            gap: 5px;
         }
 
         .element-btn {
             background: var(--panel-raised);
             border: 1px solid var(--line);
             color: var(--text);
-            padding: 10px 12px;
+            padding: 9px 10px;
             border-radius: var(--radius);
             cursor: pointer;
             font-family: 'DM Mono', monospace;
             font-weight: 500;
-            font-size: 12px;
+            font-size: 11px;
             letter-spacing: 0.3px;
             transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
             display: flex;
             align-items: center;
-            gap: 9px;
+            gap: 8px;
             position: relative;
         }
 
-        .element-btn:hover {
-            background: #161a16;
-            border-color: rgba(200, 255, 61, 0.25);
-            color: var(--text-bright);
-        }
+        .element-btn:hover { background: #161a16; border-color: rgba(200, 255, 61, 0.25); color: var(--text-bright); }
 
         .element-btn.active {
             background: var(--acid-dim);
@@ -340,16 +352,14 @@
         .element-btn.active::before {
             content: '';
             position: absolute;
-            left: -1px;
-            top: -1px;
-            bottom: -1px;
+            left: -1px; top: -1px; bottom: -1px;
             width: 3px;
             background: var(--acid);
         }
 
         .element-icon {
-            width: 14px;
-            height: 14px;
+            width: 13px;
+            height: 13px;
             flex-shrink: 0;
             transition: transform 0.15s ease, filter 0.15s ease;
         }
@@ -359,13 +369,45 @@
             transform: scale(1.1);
         }
 
-        /* Bottom Controls */
+        /* Brush size row in sidebar */
+        .brush-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .brush-row label {
+            font-size: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            flex-shrink: 0;
+            width: 36px;
+        }
+
+        .brush-row input[type=range] {
+            flex: 1;
+            accent-color: var(--acid);
+            height: 3px;
+            cursor: pointer;
+        }
+
+        .brush-val {
+            font-size: 11px;
+            color: var(--acid);
+            font-weight: 500;
+            width: 18px;
+            text-align: right;
+        }
+
+        /* Sidebar actions */
         .actions {
             margin-top: auto;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            padding-top: 18px;
+            gap: 8px;
+            padding-top: 14px;
             border-top: 1px solid var(--line);
         }
 
@@ -373,58 +415,71 @@
             background: var(--acid);
             color: #07080a;
             border: none;
-            padding: 13px;
+            padding: 11px;
             border-radius: var(--radius);
             font-family: 'Bebas Neue', sans-serif;
-            font-size: 15px;
+            font-size: 14px;
             cursor: pointer;
             text-transform: uppercase;
             letter-spacing: 2.5px;
             transition: filter 0.15s ease, transform 0.1s ease;
         }
 
-        .action-btn:hover {
-            filter: brightness(1.12);
+        .action-btn:hover { filter: brightness(1.12); }
+        .action-btn:active { transform: translateY(1px); }
+
+        .instructions {
+            font-size: 10px;
+            color: var(--text-dim);
+            margin-top: 12px;
+            text-align: center;
+            line-height: 1.8;
+            letter-spacing: 0.3px;
+            border: 1px solid var(--line-soft);
+            padding: 9px;
         }
 
-        .action-btn:active {
-            transform: translateY(1px);
+        .sidebar-scroller {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-right: 4px;
+            margin-bottom: 4px;
         }
 
-        /* Telemetry Widget (HUD) */
+        .sidebar-scroller::-webkit-scrollbar { width: 3px; }
+        .sidebar-scroller::-webkit-scrollbar-thumb { background: var(--line); }
+        .sidebar-scroller::-webkit-scrollbar-thumb:hover { background: var(--acid-dim); }
+
+        /* Canvas HUD (desktop only) */
         #hud {
             position: absolute;
-            top: 18px;
-            left: 18px;
+            top: 14px;
+            left: 14px;
             pointer-events: none;
-            font-size: 11px;
+            font-size: 10px;
             font-family: 'DM Mono', monospace;
             background: rgba(7, 8, 10, 0.82);
-            padding: 12px 16px;
+            padding: 10px 14px;
             border: 1px solid var(--line);
             z-index: 5;
             color: var(--text);
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 5px;
         }
 
-        #hud div {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-        }
+        #hud div { display: flex; justify-content: space-between; gap: 18px; }
         #hud span { color: var(--acid); font-weight: 500; }
-        #hud .hud-label { color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; font-size: 10px; }
+        #hud .hud-label { color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; font-size: 9px; }
 
-        /* Floating Cursor Tooltip */
+        /* Floating brush tooltip */
         #brush-tooltip {
             position: absolute;
             pointer-events: none;
             background: var(--panel-raised);
             color: var(--acid);
-            padding: 5px 11px;
-            font-size: 11px;
+            padding: 4px 10px;
+            font-size: 10px;
             font-weight: 500;
             font-family: 'DM Mono', monospace;
             letter-spacing: 0.5px;
@@ -436,38 +491,278 @@
             box-shadow: 0 0 10px var(--acid-glow);
         }
 
-        .instructions {
-            font-size: 10.5px;
+        /* Reset overlay button (top-right corner of canvas) */
+        #reset-overlay {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+            background: rgba(7, 8, 10, 0.78);
+            border: 1px solid var(--line);
             color: var(--text-dim);
-            margin-top: 14px;
-            text-align: center;
-            line-height: 1.7;
-            letter-spacing: 0.3px;
-            border: 1px solid var(--line-soft);
-            padding: 10px;
+            padding: 5px 10px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 12px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            border-radius: var(--radius);
+            transition: border-color 0.15s, color 0.15s, background 0.15s;
+        }
+        #reset-overlay:hover {
+            border-color: var(--acid-dim);
+            color: var(--acid);
+            background: rgba(7, 8, 10, 0.95);
+        }
+        #reset-overlay:active { transform: scale(0.97); }
+
+        /* ============ MOBILE LAYOUT ============ */
+        /* Mobile: shown only on touch devices */
+        #mobile-toolbar {
+            display: none;
         }
 
-        /* Sidebar Scroller Styling */
-        .sidebar-scroller {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding-right: 6px;
-            margin-bottom: 6px;
+        #mobile-palette {
+            display: none;
         }
 
-        .sidebar-scroller::-webkit-scrollbar {
-            width: 4px;
-        }
-        .sidebar-scroller::-webkit-scrollbar-thumb {
-            background: var(--line);
-        }
-        .sidebar-scroller::-webkit-scrollbar-thumb:hover {
-            background: var(--acid-dim);
+        /* Touch indicator ring on canvas */
+        #touch-ring {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--acid);
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            z-index: 50;
+            box-shadow: 0 0 8px var(--acid-glow);
+            transition: opacity 0.1s ease, width 0.1s ease, height 0.1s ease;
         }
 
-        @media (max-width: 820px) {
-            #main { flex-direction: column; }
-            #sidebar { width: 100%; border-left: none; border-top: 1px solid var(--line); }
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 820px) and (pointer: coarse), (max-width: 600px) {
+            :root { --topbar-h: 48px; }
+
+            /* Hide desktop elements */
+            #sidebar { display: none; }
+            #hud { display: none; }
+            #brush-tooltip { display: none; }
+            #topbar .tagline { display: none; }
+
+            /* Show HUD in topbar instead */
+            #topbar-hud { display: flex; }
+
+            /* Game container goes edge-to-edge */
+            #game-container {
+                padding: 0;
+                align-items: flex-start;
+            }
+
+            .canvas-wrapper {
+                width: 100%;
+                max-width: 100%;
+                aspect-ratio: 16/9;
+                border-left: none;
+                border-right: none;
+                border-top: none;
+                border-radius: 0;
+                box-shadow: none;
+            }
+
+            /* Mobile toolbar below canvas */
+            #mobile-toolbar {
+                display: flex;
+                align-items: center;
+                height: var(--mobile-toolbar-h);
+                background: var(--panel);
+                border-top: 1px solid var(--line);
+                flex-shrink: 0;
+                padding: 0 10px;
+                gap: 8px;
+            }
+
+            /* Active element indicator */
+            #active-el-chip {
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                background: var(--acid-dim);
+                border: 1px solid var(--acid);
+                border-radius: var(--radius);
+                padding: 7px 12px;
+                font-family: 'DM Mono', monospace;
+                font-size: 11px;
+                font-weight: 500;
+                color: var(--text-bright);
+                flex-shrink: 0;
+                min-width: 90px;
+            }
+
+            #active-el-chip .chip-icon {
+                width: 12px;
+                height: 12px;
+                flex-shrink: 0;
+            }
+
+            /* Brush controls in toolbar */
+            .m-brush-row {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                flex: 1;
+            }
+
+            .m-brush-row label {
+                font-size: 9px;
+                letter-spacing: 1px;
+                color: var(--text-dim);
+                text-transform: uppercase;
+                flex-shrink: 0;
+            }
+
+            .m-brush-row input[type=range] {
+                flex: 1;
+                accent-color: var(--acid);
+                height: 2px;
+            }
+
+            .m-brush-val {
+                font-size: 11px;
+                color: var(--acid);
+                font-weight: 500;
+                width: 16px;
+                text-align: right;
+                flex-shrink: 0;
+            }
+
+            /* Palette toggle button */
+            #btn-palette-toggle {
+                background: transparent;
+                border: 1px solid var(--line);
+                color: var(--text-dim);
+                padding: 8px 10px;
+                border-radius: var(--radius);
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                font-family: 'DM Mono', monospace;
+                font-size: 9px;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                transition: border-color 0.15s, color 0.15s;
+                flex-shrink: 0;
+            }
+
+            #btn-palette-toggle svg { width: 14px; height: 14px; }
+            #btn-palette-toggle:active { color: var(--acid); border-color: var(--acid-dim); }
+
+            #btn-mobile-clear {
+                background: rgba(200, 255, 61, 0.08);
+                border: 1px solid rgba(200, 255, 61, 0.2);
+                color: var(--acid);
+                padding: 8px 12px;
+                border-radius: var(--radius);
+                cursor: pointer;
+                font-family: 'Bebas Neue', sans-serif;
+                font-size: 13px;
+                letter-spacing: 2px;
+                flex-shrink: 0;
+            }
+
+            /* Mobile palette drawer */
+            #mobile-palette {
+                display: flex;
+                flex-direction: column;
+                background: var(--panel);
+                border-top: 1px solid var(--acid-dim);
+                flex-shrink: 0;
+                overflow: hidden;
+                max-height: 0;
+                transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            #mobile-palette.open {
+                max-height: var(--mobile-palette-h);
+            }
+
+            #mobile-palette-inner {
+                overflow-x: auto;
+                overflow-y: hidden;
+                padding: 12px 12px 14px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            #mobile-palette-inner::-webkit-scrollbar { height: 0; }
+
+            .m-category {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                flex-shrink: 0;
+            }
+
+            .m-cat-label {
+                font-family: 'Bebas Neue', sans-serif;
+                font-size: 11px;
+                letter-spacing: 2px;
+                color: var(--text-dim);
+                text-transform: uppercase;
+                flex-shrink: 0;
+                width: 52px;
+            }
+
+            .m-elements {
+                display: flex;
+                gap: 6px;
+            }
+
+            .m-element-btn {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 4px;
+                background: var(--panel-raised);
+                border: 1px solid var(--line);
+                color: var(--text-dim);
+                border-radius: var(--radius);
+                cursor: pointer;
+                padding: 8px 6px 6px;
+                min-width: 52px;
+                transition: border-color 0.12s, background 0.12s, color 0.12s;
+                flex-shrink: 0;
+            }
+
+            .m-element-btn svg { width: 16px; height: 16px; }
+
+            .m-element-btn span {
+                font-family: 'DM Mono', monospace;
+                font-size: 9px;
+                letter-spacing: 0.3px;
+                white-space: nowrap;
+            }
+
+            .m-element-btn.active {
+                background: var(--acid-dim);
+                border-color: var(--acid);
+                color: var(--text-bright);
+            }
+
+            /* Main must scroll on mobile */
+            #main {
+                flex-direction: column;
+                overflow: hidden;
+            }
+        }
+
+        /* Non-touch pointer: always show desktop layout */
+        @media (pointer: fine) {
+            #mobile-toolbar { display: none !important; }
+            #mobile-palette { display: none !important; }
+            #topbar-hud { display: none; }
         }
 
         .sr-only {
@@ -495,239 +790,410 @@
         <div class="topbar-divider"></div>
         <h1 class="brand">falling-<span>sand</span></h1>
         <p class="tagline">particle physics sandbox</p>
+
+        <!-- Mobile HUD (hidden on desktop via CSS) -->
+        <div id="topbar-hud">
+            <div class="hud-item">
+                <span class="hud-label">FPS</span>
+                <span class="hud-val" id="fps-counter-m">60</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-label">P</span>
+                <span class="hud-val" id="particle-counter-m">0</span>
+            </div>
+        </div>
     </header>
 
     <p class="sr-only">
-        Free browser-based falling sand simulator. Select an element such as sand, water, fire, oil, acid, lava, ice, glass, plant, steam, or C-4, then draw on the canvas to simulate real-time particle physics including gravity, fluid flow, combustion, freezing, and chemical reactions.
+        Free browser-based falling sand simulator with 24 elements. Select sand, water, fire, oil, acid, lava, ice, glass, plant, steam, C-4, snow, mud, gunpowder, ash, obsidian, methane, algae, salt, saltwater, or void, then draw on the canvas to simulate real-time cellular automata particle physics including gravity, fluid flow, combustion, freezing, melting, explosion, and chemical reactions. Works on mobile and desktop.
     </p>
 
     <main id="main">
-    <div id="game-container">
-        <div class="canvas-wrapper">
-            <canvas id="sim-canvas" role="img" aria-label="Interactive falling sand particle simulation canvas"></canvas>
-        </div>
-        <div id="hud" aria-hidden="true">
-            <div><span class="hud-label">FPS</span> <span id="fps-counter">60</span></div>
-            <div><span class="hud-label">Particles</span> <span id="particle-counter">0</span></div>
-            <div><span class="hud-label">Grid</span> <span style="color: var(--text-bright)">240×135</span></div>
-        </div>
-        <div id="brush-tooltip">Size: 4</div>
-    </div>
-
-    <aside id="sidebar" aria-label="Element palette and controls">
-        <div class="sidebar-scroller">
-            <div class="category-title">Solids</div>
-            <div class="element-grid">
-                <button class="element-btn" data-id="3">
-                    <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#784f2b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M12 2a10 10 0 0 0-10 10"/>
-                        <path d="M12 6a6 6 0 0 0-6 6"/>
-                    </svg>
-                    Wood
-                </button>
-                <button class="element-btn" data-id="5">
-                    <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#7a7a7a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M12 3L4 9l3 11h10l3-11z"/>
-                    </svg>
-                    Stone
-                </button>
-                <button class="element-btn" data-id="10">
-                    <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#2cb32c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 21 2c-2.48 4-3 5.5-4.1 11.2A7 7 0 0 1 11 20z"/>
-                        <path d="M9 9.5c0 3-1.5 5.5-4 5.5"/>
-                    </svg>
-                    Plant
-                </button>
-                <button class="element-btn" data-id="12">
-                    <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#abd4ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                        <path d="M3.27 6.96L12 12.01l8.73-5.05"/>
-                        <path d="M12 22.08V12"/>
-                    </svg>
-                    Ice
-                </button>
-                <button class="element-btn" data-id="13">
-                    <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#e1f0ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M12 2s1 7 8 8c-7 1-8 8-8 8s-1-7-8-8c7-1 8-8 8-8z"/>
-                    </svg>
-                    Glass
-                </button>
+        <div id="game-container">
+            <div class="canvas-wrapper">
+                <canvas id="sim-canvas" role="img" aria-label="Interactive falling sand particle simulation canvas"></canvas>
             </div>
-
-            <div class="category-title">Powders</div>
-            <div class="element-grid">
-                <button class="element-btn active" data-id="1">
-                    <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#e2be7a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M5 2h14v4l-5 4 5 4v4H5v-4l5-4-5-4V2z"/>
-                        <path d="M12 12v3M10 18h4"/>
-                    </svg>
-                    Sand
-                </button>
-                <button class="element-btn" data-id="8">
-                    <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#ff4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <rect x="3" y="3" width="18" height="18" rx="2"/>
-                        <path d="M9 9h6v6H9zM12 3v6M12 15v6"/>
-                    </svg>
-                    C-4
-                </button>
+            <!-- Desktop HUD overlay -->
+            <div id="hud" aria-hidden="true">
+                <div><span class="hud-label">FPS</span> <span id="fps-counter">60</span></div>
+                <div><span class="hud-label">Particles</span> <span id="particle-counter">0</span></div>
+                <div><span class="hud-label">Grid</span> <span style="color: var(--text-bright)">240×135</span></div>
             </div>
-
-            <div class="category-title">Liquids</div>
-            <div class="element-grid">
-                <button class="element-btn" data-id="2">
-                    <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#1e81b0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-13-7-13S5 10.7 5 15a7 7 0 0 0 7 7z"/>
-                    </svg>
-                    Water
-                </button>
-                <button class="element-btn" data-id="6">
-                    <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#8a7355" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-13-7-13S5 10.7 5 15a7 7 0 0 0 7 7z"/>
-                        <path d="M12 18v-3"/>
-                    </svg>
-                    Oil
-                </button>
-                <button class="element-btn" data-id="7">
-                    <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#39ff14" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-13-7-13S5 10.7 5 15a7 7 0 0 0 7 7z"/>
-                        <circle cx="12" cy="15" r="1.5"/>
-                        <circle cx="10" cy="12" r="1"/>
-                    </svg>
-                    Acid
-                </button>
-                <button class="element-btn" data-id="9">
-                    <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#ff4500" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-13-7-13S5 10.7 5 15a7 7 0 0 0 7 7z"/>
-                        <path d="M12 11c-1 1-2 2-2 3.5s1 2.5 2 2.5 2-1 2-2.5S13 12 12 11z"/>
-                    </svg>
-                    Lava
-                </button>
-            </div>
-
-            <div class="category-title">Gases</div>
-            <div class="element-grid">
-                <button class="element-btn" data-id="4">
-                    <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#ff5e00" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
-                    </svg>
-                    Fire
-                </button>
-                <button class="element-btn" data-id="11">
-                    <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#cccccc" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M12 21a2 2 0 0 0 2-2V5a2 2 0 0 0-4 0v12M17 17a2 2 0 0 0 2-2V9a2 2 0 0 0-4 0v4M7 19a2 2 0 0 0 2-2v-4a2 2 0 0 0-4 0v2"/>
-                    </svg>
-                    Steam
-                </button>
-            </div>
-            
-            <div class="category-title">Tools</div>
-            <div class="element-grid">
-                <button class="element-btn" data-id="0">
-                    <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#ff4ea3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M20 20H7L3 16l10-10 7 7-4 4zM20 20l-4-4"/>
-                    </svg>
-                    Eraser
-                </button>
-            </div>
+            <div id="brush-tooltip">Size: 4</div>
+            <!-- Reset overlay (top-right of canvas, always visible) -->
+            <button id="reset-overlay" aria-label="Reset canvas">RESET</button>
+            <!-- Touch ring indicator -->
+            <div id="touch-ring"></div>
         </div>
 
-        <div class="actions">
-            <button class="action-btn" id="btn-clear">Reset</button>
+        <!-- ===== DESKTOP SIDEBAR ===== -->
+        <aside id="sidebar" aria-label="Element palette and controls">
+            <div class="sidebar-scroller">
+                <div class="category-title">Solids</div>
+                <div class="element-grid">
+                    <button class="element-btn" data-id="3" data-name="Wood">
+                        <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#784f2b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 0-10 10"/><path d="M12 6a6 6 0 0 0-6 6"/></svg>
+                        Wood
+                    </button>
+                    <button class="element-btn" data-id="5" data-name="Stone">
+                        <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#7a7a7a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3L4 9l3 11h10l3-11z"/></svg>
+                        Stone
+                    </button>
+                    <button class="element-btn" data-id="10" data-name="Plant">
+                        <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#2cb32c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 21 2c-2.48 4-3 5.5-4.1 11.2A7 7 0 0 1 11 20z"/><path d="M9 9.5c0 3-1.5 5.5-4 5.5"/></svg>
+                        Plant
+                    </button>
+                    <button class="element-btn" data-id="12" data-name="Ice">
+                        <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#abd4ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05"/><path d="M12 22.08V12"/></svg>
+                        Ice
+                    </button>
+                    <button class="element-btn" data-id="13" data-name="Glass">
+                        <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#e1f0ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2s1 7 8 8c-7 1-8 8-8 8s-1-7-8-8c7-1 8-8 8-8z"/></svg>
+                        Glass
+                    </button>
+                    <button class="element-btn" data-id="19" data-name="Obsidian">
+                        <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#5050a0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l8 7-4 2 2 5-8 6-8-6 2-5-4-2z"/></svg>
+                        Obsidian
+                    </button>
+                </div>
+
+                <div class="category-title">Powders</div>
+                <div class="element-grid">
+                    <button class="element-btn active" data-id="1" data-name="Sand">
+                        <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#e2be7a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 2h14v4l-5 4 5 4v4H5v-4l5-4-5-4V2z"/><path d="M12 12v3M10 18h4"/></svg>
+                        Sand
+                    </button>
+                    <button class="element-btn" data-id="15" data-name="Snow">
+                        <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#d0e8ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20M4.93 4.93l14.14 14.14M2 12h20M4.93 19.07l14.14-14.14"/></svg>
+                        Snow
+                    </button>
+                    <button class="element-btn" data-id="17" data-name="Gunpowder">
+                        <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#888899" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><path d="M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8"/></svg>
+                        Gunpowder
+                    </button>
+                    <button class="element-btn" data-id="18" data-name="Ash">
+                        <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#909090" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6l4-4 4 4"/><path d="M6 10c0 4 2 8 6 8s6-4 6-8"/><path d="M9 18h6"/></svg>
+                        Ash
+                    </button>
+                    <button class="element-btn" data-id="22" data-name="Salt">
+                        <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#e8e8f0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"/><path d="M9 12h6M12 9v6"/></svg>
+                        Salt
+                    </button>
+                    <button class="element-btn" data-id="16" data-name="Mud">
+                        <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#4a7a5a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 20c3-4 5-8 9-8s6 4 9 8"/><path d="M6 14c2-3 4-5 6-5s4 2 6 5"/></svg>
+                        Mud
+                    </button>
+                    <button class="element-btn" data-id="8" data-name="C-4">
+                        <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#ff4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9zM12 3v6M12 15v6"/></svg>
+                        C-4
+                    </button>
+                </div>
+
+                <div class="category-title">Liquids</div>
+                <div class="element-grid">
+                    <button class="element-btn" data-id="2" data-name="Water">
+                        <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#1e81b0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-13-7-13S5 10.7 5 15a7 7 0 0 0 7 7z"/></svg>
+                        Water
+                    </button>
+                    <button class="element-btn" data-id="23" data-name="Saltwater">
+                        <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#7ab0c8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-13-7-13S5 10.7 5 15a7 7 0 0 0 7 7z"/><path d="M9 13h6"/></svg>
+                        Saltwater
+                    </button>
+                    <button class="element-btn" data-id="6" data-name="Oil">
+                        <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#8a7355" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-13-7-13S5 10.7 5 15a7 7 0 0 0 7 7z"/><path d="M12 18v-3"/></svg>
+                        Oil
+                    </button>
+                    <button class="element-btn" data-id="7" data-name="Acid">
+                        <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#39ff14" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-13-7-13S5 10.7 5 15a7 7 0 0 0 7 7z"/><circle cx="12" cy="15" r="1.5"/><circle cx="10" cy="12" r="1"/></svg>
+                        Acid
+                    </button>
+                    <button class="element-btn" data-id="9" data-name="Lava">
+                        <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#ff4500" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-13-7-13S5 10.7 5 15a7 7 0 0 0 7 7z"/><path d="M12 11c-1 1-2 2-2 3.5s1 2.5 2 2.5 2-1 2-2.5S13 12 12 11z"/></svg>
+                        Lava
+                    </button>
+                </div>
+
+                <div class="category-title">Gases</div>
+                <div class="element-grid">
+                    <button class="element-btn" data-id="4" data-name="Fire">
+                        <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#ff5e00" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+                        Fire
+                    </button>
+                    <button class="element-btn" data-id="11" data-name="Steam">
+                        <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#cccccc" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21a2 2 0 0 0 2-2V5a2 2 0 0 0-4 0v12M17 17a2 2 0 0 0 2-2V9a2 2 0 0 0-4 0v4M7 19a2 2 0 0 0 2-2v-4a2 2 0 0 0-4 0v2"/></svg>
+                        Steam
+                    </button>
+                    <button class="element-btn" data-id="20" data-name="Methane">
+                        <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#78c8a0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c0 5-5 8-5 13a5 5 0 0 0 10 0c0-5-5-8-5-13z"/><path d="M9 17c0 1.66 1.34 3 3 3"/></svg>
+                        Methane
+                    </button>
+                    <button class="element-btn" data-id="21" data-name="Algae">
+                        <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#10802a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22c-4 0-7-3-7-7 0-3 2-5 4-7"/><path d="M12 22c4 0 7-3 7-7 0-3-2-5-4-7"/><path d="M12 3v19"/></svg>
+                        Algae
+                    </button>
+                </div>
+
+                <div class="category-title">Tools</div>
+                <div class="element-grid">
+                    <button class="element-btn" data-id="0" data-name="Eraser">
+                        <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#ff4ea3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 20H7L3 16l10-10 7 7-4 4zM20 20l-4-4"/></svg>
+                        Eraser
+                    </button>
+                    <button class="element-btn" data-id="24" data-name="Void">
+                        <svg class="element-icon" viewBox="0 0 24 24" fill="none" stroke="#8833cc" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 8l8 8M16 8l-8 8"/></svg>
+                        Void
+                    </button>
+                </div>
+
+                <div class="category-title" style="margin-top:16px">Brush</div>
+                <div class="brush-row">
+                    <label>Size</label>
+                    <input type="range" id="brush-slider" min="1" max="15" value="4">
+                    <span class="brush-val" id="brush-val-display">4</span>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="action-btn" id="btn-clear">Reset Canvas</button>
+            </div>
+
+            <div class="instructions">
+                Left Click: Paint / Hold to Pour<br>
+                Right Click: Quick Erase<br>
+                Scroll: Change Brush Size
+            </div>
+        </aside>
+
+        <!-- ===== MOBILE TOOLBAR ===== -->
+        <div id="mobile-toolbar" aria-label="Mobile controls">
+            <!-- Active element chip -->
+            <div id="active-el-chip">
+                <svg class="chip-icon" id="chip-icon" viewBox="0 0 24 24" fill="none" stroke="#e2be7a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 2h14v4l-5 4 5 4v4H5v-4l5-4-5-4V2z"/><path d="M12 12v3M10 18h4"/>
+                </svg>
+                <span id="chip-label">Sand</span>
+            </div>
+
+            <!-- Brush size -->
+            <div class="m-brush-row">
+                <label>Brush</label>
+                <input type="range" id="m-brush-slider" min="1" max="12" value="4">
+                <span class="m-brush-val" id="m-brush-val">4</span>
+            </div>
+
+            <!-- Palette toggle -->
+            <button id="btn-palette-toggle" aria-label="Toggle element palette">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/>
+                </svg>
+                Pick
+            </button>
         </div>
-        
-        <div class="instructions">
-            Left Click: Paint / Hold to Pour<br>
-            Right Click: Quick Erase<br>
-            Scroll Wheel: Change Brush Size
+
+        <!-- ===== MOBILE PALETTE DRAWER ===== -->
+        <div id="mobile-palette" role="region" aria-label="Element palette">
+            <div id="mobile-palette-inner">
+
+                <div class="m-category">
+                    <span class="m-cat-label">Solids</span>
+                    <div class="m-elements">
+                        <button class="m-element-btn" data-id="3" data-name="Wood"><svg viewBox="0 0 24 24" fill="none" stroke="#784f2b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 0-10 10"/><path d="M12 6a6 6 0 0 0-6 6"/></svg><span>Wood</span></button>
+                        <button class="m-element-btn" data-id="5" data-name="Stone"><svg viewBox="0 0 24 24" fill="none" stroke="#7a7a7a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L4 9l3 11h10l3-11z"/></svg><span>Stone</span></button>
+                        <button class="m-element-btn" data-id="10" data-name="Plant"><svg viewBox="0 0 24 24" fill="none" stroke="#2cb32c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 21 2c-2.48 4-3 5.5-4.1 11.2A7 7 0 0 1 11 20z"/><path d="M9 9.5c0 3-1.5 5.5-4 5.5"/></svg><span>Plant</span></button>
+                        <button class="m-element-btn" data-id="12" data-name="Ice"><svg viewBox="0 0 24 24" fill="none" stroke="#abd4ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05"/><path d="M12 22.08V12"/></svg><span>Ice</span></button>
+                        <button class="m-element-btn" data-id="13" data-name="Glass"><svg viewBox="0 0 24 24" fill="none" stroke="#e1f0ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2s1 7 8 8c-7 1-8 8-8 8s-1-7-8-8c7-1 8-8 8-8z"/></svg><span>Glass</span></button>
+                        <button class="m-element-btn" data-id="19" data-name="Obsidian"><svg viewBox="0 0 24 24" fill="none" stroke="#5050a0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 7-4 2 2 5-8 6-8-6 2-5-4-2z"/></svg><span>Obsidian</span></button>
+                    </div>
+                </div>
+
+                <div class="m-category">
+                    <span class="m-cat-label">Powders</span>
+                    <div class="m-elements">
+                        <button class="m-element-btn active" data-id="1" data-name="Sand"><svg viewBox="0 0 24 24" fill="none" stroke="#e2be7a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 2h14v4l-5 4 5 4v4H5v-4l5-4-5-4V2z"/><path d="M12 12v3M10 18h4"/></svg><span>Sand</span></button>
+                        <button class="m-element-btn" data-id="15" data-name="Snow"><svg viewBox="0 0 24 24" fill="none" stroke="#d0e8ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M4.93 4.93l14.14 14.14M2 12h20M4.93 19.07l14.14-14.14"/></svg><span>Snow</span></button>
+                        <button class="m-element-btn" data-id="17" data-name="Gunpowder"><svg viewBox="0 0 24 24" fill="none" stroke="#888899" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg><span>Gunpowder</span></button>
+                        <button class="m-element-btn" data-id="18" data-name="Ash"><svg viewBox="0 0 24 24" fill="none" stroke="#909090" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6l4-4 4 4"/><path d="M6 10c0 4 2 8 6 8s6-4 6-8"/><path d="M9 18h6"/></svg><span>Ash</span></button>
+                        <button class="m-element-btn" data-id="22" data-name="Salt"><svg viewBox="0 0 24 24" fill="none" stroke="#e8e8f0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="14" height="14" rx="2"/><path d="M9 12h6M12 9v6"/></svg><span>Salt</span></button>
+                        <button class="m-element-btn" data-id="16" data-name="Mud"><svg viewBox="0 0 24 24" fill="none" stroke="#4a7a5a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20c3-4 5-8 9-8s6 4 9 8"/><path d="M6 14c2-3 4-5 6-5s4 2 6 5"/></svg><span>Mud</span></button>
+                        <button class="m-element-btn" data-id="8" data-name="C-4"><svg viewBox="0 0 24 24" fill="none" stroke="#ff4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9zM12 3v6M12 15v6"/></svg><span>C-4</span></button>
+                    </div>
+                </div>
+
+                <div class="m-category">
+                    <span class="m-cat-label">Liquids</span>
+                    <div class="m-elements">
+                        <button class="m-element-btn" data-id="2" data-name="Water"><svg viewBox="0 0 24 24" fill="none" stroke="#1e81b0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-13-7-13S5 10.7 5 15a7 7 0 0 0 7 7z"/></svg><span>Water</span></button>
+                        <button class="m-element-btn" data-id="23" data-name="Saltwater"><svg viewBox="0 0 24 24" fill="none" stroke="#7ab0c8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-13-7-13S5 10.7 5 15a7 7 0 0 0 7 7z"/><path d="M9 13h6"/></svg><span>Saltwater</span></button>
+                        <button class="m-element-btn" data-id="6" data-name="Oil"><svg viewBox="0 0 24 24" fill="none" stroke="#8a7355" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-13-7-13S5 10.7 5 15a7 7 0 0 0 7 7z"/><path d="M12 18v-3"/></svg><span>Oil</span></button>
+                        <button class="m-element-btn" data-id="7" data-name="Acid"><svg viewBox="0 0 24 24" fill="none" stroke="#39ff14" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-13-7-13S5 10.7 5 15a7 7 0 0 0 7 7z"/><circle cx="12" cy="15" r="1.5"/><circle cx="10" cy="12" r="1"/></svg><span>Acid</span></button>
+                        <button class="m-element-btn" data-id="9" data-name="Lava"><svg viewBox="0 0 24 24" fill="none" stroke="#ff4500" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-13-7-13S5 10.7 5 15a7 7 0 0 0 7 7z"/><path d="M12 11c-1 1-2 2-2 3.5s1 2.5 2 2.5 2-1 2-2.5S13 12 12 11z"/></svg><span>Lava</span></button>
+                    </div>
+                </div>
+
+                <div class="m-category">
+                    <span class="m-cat-label">Gases</span>
+                    <div class="m-elements">
+                        <button class="m-element-btn" data-id="4" data-name="Fire"><svg viewBox="0 0 24 24" fill="none" stroke="#ff5e00" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg><span>Fire</span></button>
+                        <button class="m-element-btn" data-id="11" data-name="Steam"><svg viewBox="0 0 24 24" fill="none" stroke="#cccccc" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21a2 2 0 0 0 2-2V5a2 2 0 0 0-4 0v12M17 17a2 2 0 0 0 2-2V9a2 2 0 0 0-4 0v4M7 19a2 2 0 0 0 2-2v-4a2 2 0 0 0-4 0v2"/></svg><span>Steam</span></button>
+                        <button class="m-element-btn" data-id="20" data-name="Methane"><svg viewBox="0 0 24 24" fill="none" stroke="#78c8a0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c0 5-5 8-5 13a5 5 0 0 0 10 0c0-5-5-8-5-13z"/><path d="M9 17c0 1.66 1.34 3 3 3"/></svg><span>Methane</span></button>
+                        <button class="m-element-btn" data-id="21" data-name="Algae"><svg viewBox="0 0 24 24" fill="none" stroke="#10802a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c-4 0-7-3-7-7 0-3 2-5 4-7"/><path d="M12 22c4 0 7-3 7-7 0-3-2-5-4-7"/><path d="M12 3v19"/></svg><span>Algae</span></button>
+                    </div>
+                </div>
+
+                <div class="m-category">
+                    <span class="m-cat-label">Tools</span>
+                    <div class="m-elements">
+                        <button class="m-element-btn" data-id="0" data-name="Eraser"><svg viewBox="0 0 24 24" fill="none" stroke="#ff4ea3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H7L3 16l10-10 7 7-4 4zM20 20l-4-4"/></svg><span>Eraser</span></button>
+                        <button class="m-element-btn" data-id="24" data-name="Void"><svg viewBox="0 0 24 24" fill="none" stroke="#8833cc" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 8l8 8M16 8l-8 8"/></svg><span>Void</span></button>
+                    </div>
+                </div>
+
+            </div>
         </div>
-    </aside>
     </main>
 
 <script>
-    // --- Resolution Constants ---
-    // Chunky pixel-art 240x135 viewport (Perfect 16:9 ratio)
+    // =============================================
+    // DEVICE DETECTION
+    // =============================================
+    const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+    // =============================================
+    // SIMULATION CONSTANTS
+    // =============================================
     const WIDTH = 240;
     const HEIGHT = 135;
-    
-    // Chunk size adapted for micro resolution
     const CHUNK_SIZE = 5;
     const CHUNKS_X = Math.ceil(WIDTH / CHUNK_SIZE);
     const CHUNKS_Y = Math.ceil(HEIGHT / CHUNK_SIZE);
 
     const EL = {
-        EMPTY: 0, SAND: 1, WATER: 2, WOOD: 3, FIRE: 4, STONE: 5, 
-        OIL: 6, ACID: 7, C4: 8, LAVA: 9, PLANT: 10, STEAM: 11, ICE: 12, GLASS: 13, BORDER: 14
+        EMPTY: 0, SAND: 1, WATER: 2, WOOD: 3, FIRE: 4, STONE: 5,
+        OIL: 6, ACID: 7, C4: 8, LAVA: 9, PLANT: 10, STEAM: 11, ICE: 12, GLASS: 13, BORDER: 14,
+        // New elements
+        SNOW: 15, MUD: 16, GUNPOWDER: 17, ASH: 18, OBSIDIAN: 19,
+        METHANE: 20, ALGAE: 21, SALT: 22, SALTWATER: 23, VOID: 24
     };
 
-    // ABGR Palette colors (A-B-G-R)
+    // ABGR format (alpha, blue, green, red)
     const COLORS = new Uint32Array([
-        0x00000000, // 0: Empty (Fully transparent)
-        0xFF7abeec, // 1: Sand (ABGR for #ecbe7a, a beautiful light brown/warm tan)
-        0xFFb0811e, // 2: Water
-        0xFF2b4f78, // 3: Wood
-        0xFF005eff, // 4: Fire
-        0xFF7a7a7a, // 5: Stone
-        0xFF313c4a, // 6: Oil
-        0xFF14ff39, // 7: Acid
-        0xFF484848, // 8: C-4
-        0xFF0045ff, // 9: Lava
-        0xFF2cb32c, // 10: Plant
-        0xFFcccccc, // 11: Steam
-        0xFFffd4ab, // 12: Ice
-        0xFFffe1c0, // 13: Glass
-        0xFF443a30  // 14: Border (Metallic Gray Boundary)
+        0x00000000, // 0:  Empty
+        0xFF7abeec, // 1:  Sand       — warm tan
+        0xFFb0811e, // 2:  Water      — blue
+        0xFF2b4f78, // 3:  Wood       — dark brown
+        0xFF005eff, // 4:  Fire       — orange-red
+        0xFF7a7a7a, // 5:  Stone      — grey
+        0xFF313c4a, // 6:  Oil        — dark
+        0xFF14ff39, // 7:  Acid       — neon green
+        0xFF484848, // 8:  C-4        — dark grey
+        0xFF0045ff, // 9:  Lava       — deep orange
+        0xFF2cb32c, // 10: Plant      — green
+        0xFFcccccc, // 11: Steam      — light grey
+        0xFFffd4ab, // 12: Ice        — pale blue
+        0xFFffe1c0, // 13: Glass      — near white
+        0xFF443a30, // 14: Border     — dark metal
+        0xFFf0f0f8, // 15: Snow       — bright white
+        0xFF2a4a6b, // 16: Mud        — dark brown
+        0xFF303050, // 17: Gunpowder  — near-black grey
+        0xFF707070, // 18: Ash        — light grey
+        0xFF181820, // 19: Obsidian   — near black with blue sheen
+        0xFF78c8a0, // 20: Methane    — pale teal gas
+        0xFF10802a, // 21: Algae      — dark teal green
+        0xFFe8e8f8, // 22: Salt       — white crystal
+        0xFF9ab0c8, // 23: Saltwater  — teal-ish blue
+        0xFF000000  // 24: Void       — pure black (handled in render)
     ]);
 
     const canvas = document.getElementById("sim-canvas");
     const ctx = canvas.getContext("2d", { alpha: false, desynchronized: true });
-    
+
     let grid = new Uint8Array(WIDTH * HEIGHT);
     let updated = new Uint8Array(WIDTH * HEIGHT);
     let extraData = new Uint8Array(WIDTH * HEIGHT);
-    
+
     let chunkActiveCurrent = new Uint8Array(CHUNKS_X * CHUNKS_Y);
     let chunkActiveNext = new Uint8Array(CHUNKS_X * CHUNKS_Y);
-    
+
     let imgData, data32;
 
-    // Interaction Metrics
+    // =============================================
+    // INTERACTION STATE
+    // =============================================
     let currentElement = EL.SAND;
     let brushSize = 4;
     let isDrawing = false;
-    let drawButton = 0; // 0: Left, 2: Right (Erase)
-    
-    let mouseX = 0;
-    let mouseY = 0;
-    let currentCanvasX = -1;
-    let currentCanvasY = -1;
-    let lastDrawX = -1;
-    let lastDrawY = -1;
+    let drawButton = 0;
 
-    // HUD element hooks
+    let mouseX = 0, mouseY = 0;
+    let currentCanvasX = -1, currentCanvasY = -1;
+    let lastDrawX = -1, lastDrawY = -1;
+
+    // HUD refs
     const fpsCounter = document.getElementById("fps-counter");
     const particleCounter = document.getElementById("particle-counter");
+    const fpsCounterM = document.getElementById("fps-counter-m");
+    const particleCounterM = document.getElementById("particle-counter-m");
     const brushTooltip = document.getElementById("brush-tooltip");
+    const touchRing = document.getElementById("touch-ring");
     let tooltipTimer;
 
+    // =============================================
+    // ELEMENT LABEL / ICON TRACKING
+    // =============================================
+    // Collect all button metadata so we can sync chip on mobile
+    const elMeta = {};
+    document.querySelectorAll('.element-btn, .m-element-btn').forEach(btn => {
+        const id = parseInt(btn.dataset.id);
+        if (!elMeta[id]) {
+            const svgEl = btn.querySelector('svg');
+            elMeta[id] = {
+                name: btn.dataset.name || btn.textContent.trim(),
+                svgOuter: svgEl ? svgEl.outerHTML : ''
+            };
+        }
+    });
+
+    function updateMobileChip(id) {
+        const meta = elMeta[id];
+        if (!meta) return;
+        const chipLabel = document.getElementById('chip-label');
+        const chipIcon = document.getElementById('chip-icon');
+        if (chipLabel) chipLabel.textContent = meta.name;
+        if (chipIcon && meta.svgOuter) {
+            chipIcon.outerHTML = meta.svgOuter.replace('<svg ', '<svg id="chip-icon" class="chip-icon" ');
+        }
+    }
+
+    // =============================================
+    // INIT
+    // =============================================
     function buildScreenBorders() {
-        // Clear all elements first
         grid.fill(EL.EMPTY);
         extraData.fill(0);
         chunkActiveCurrent.fill(0);
         chunkActiveNext.fill(0);
 
-        // Render solid indestructible BORDER lines around Left, Right and Bottom edges
         const borderThickness = 2;
-
         for (let y = 0; y < HEIGHT; y++) {
             for (let x = 0; x < WIDTH; x++) {
                 if (y >= HEIGHT - borderThickness || x < borderThickness || x >= WIDTH - borderThickness) {
-                    const i = y * WIDTH + x;
-                    grid[i] = EL.BORDER;
+                    grid[y * WIDTH + x] = EL.BORDER;
                 }
             }
         }
+    }
+
+    function selectElement(id) {
+        currentElement = id;
+        // Desktop buttons
+        document.querySelectorAll('.element-btn').forEach(b => {
+            b.classList.toggle('active', parseInt(b.dataset.id) === id);
+        });
+        // Mobile buttons
+        document.querySelectorAll('.m-element-btn').forEach(b => {
+            b.classList.toggle('active', parseInt(b.dataset.id) === id);
+        });
+        updateMobileChip(id);
     }
 
     function init() {
@@ -735,96 +1201,236 @@
         canvas.height = HEIGHT;
         imgData = ctx.createImageData(WIDTH, HEIGHT);
         data32 = new Uint32Array(imgData.data.buffer);
-        
-        // Element Grid Button Switcher
+
+        // Desktop element buttons
         document.querySelectorAll('.element-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                document.querySelectorAll('.element-btn').forEach(b => b.classList.remove('active'));
-                e.currentTarget.classList.add('active');
-                currentElement = parseInt(e.currentTarget.dataset.id);
+            btn.addEventListener('click', () => selectElement(parseInt(btn.dataset.id)));
+        });
+
+        // Mobile element buttons
+        document.querySelectorAll('.m-element-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                selectElement(parseInt(btn.dataset.id));
+                // Auto-close palette after picking
+                mobilePalette.classList.remove('open');
+                paletteOpen = false;
             });
         });
 
-        document.getElementById('btn-clear').addEventListener('click', () => {
-            buildScreenBorders();
+        // Clear buttons
+        document.getElementById('btn-clear').addEventListener('click', buildScreenBorders);
+        document.getElementById('reset-overlay').addEventListener('click', buildScreenBorders);
+
+        // Desktop brush slider
+        const brushSlider = document.getElementById('brush-slider');
+        const brushValDisplay = document.getElementById('brush-val-display');
+        brushSlider.addEventListener('input', () => {
+            brushSize = parseInt(brushSlider.value);
+            brushValDisplay.textContent = brushSize;
+            mBrushSlider.value = brushSize;
+            mBrushVal.textContent = brushSize;
         });
 
-        // Initialize world with boundary structures
+        // Mobile brush slider
+        const mBrushSlider = document.getElementById('m-brush-slider');
+        const mBrushVal = document.getElementById('m-brush-val');
+        mBrushSlider.addEventListener('input', () => {
+            brushSize = parseInt(mBrushSlider.value);
+            mBrushVal.textContent = brushSize;
+            brushSlider.value = brushSize;
+            brushValDisplay.textContent = brushSize;
+        });
+
+        // Mobile palette toggle
+        const mobilePalette = document.getElementById('mobile-palette');
+        let paletteOpen = false;
+        document.getElementById('btn-palette-toggle').addEventListener('click', () => {
+            paletteOpen = !paletteOpen;
+            mobilePalette.classList.toggle('open', paletteOpen);
+        });
+
+        // Input setup
+        setupMouseInput();
+        setupTouchInput();
+
         buildScreenBorders();
         requestAnimationFrame(gameLoop);
     }
 
-    // --- Inputs Mapping & Tracking ---
+    // =============================================
+    // MOUSE INPUT (Desktop)
+    // =============================================
+    function setupMouseInput() {
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            updateTooltipPosition();
+            const pos = getCanvasPos(e.clientX, e.clientY);
+            currentCanvasX = pos.x;
+            currentCanvasY = pos.y;
+        });
+
+        canvas.addEventListener('mousedown', (e) => {
+            isDrawing = true;
+            drawButton = e.button;
+            const pos = getCanvasPos(e.clientX, e.clientY);
+            currentCanvasX = pos.x;
+            currentCanvasY = pos.y;
+            lastDrawX = pos.x;
+            lastDrawY = pos.y;
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDrawing = false;
+            lastDrawX = -1;
+            lastDrawY = -1;
+        });
+
+        canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+        window.addEventListener('wheel', (e) => {
+            if (e.target === canvas) {
+                e.preventDefault();
+                brushSize = e.deltaY < 0
+                    ? Math.min(15, brushSize + 1)
+                    : Math.max(1, brushSize - 1);
+                document.getElementById('brush-slider').value = brushSize;
+                document.getElementById('brush-val-display').textContent = brushSize;
+                showTooltip();
+            }
+        }, { passive: false });
+    }
+
+    // =============================================
+    // TOUCH INPUT (Mobile)
+    // =============================================
+    function setupTouchInput() {
+        let lastTouchX = -1, lastTouchY = -1;
+        let pinchStartDist = 0;
+        let pinchStartBrush = 4;
+        let touchRingTimer = null;
+
+        function showTouchRing(clientX, clientY) {
+            const rect = canvas.getBoundingClientRect();
+            // Position ring relative to game-container
+            const container = document.getElementById('game-container');
+            const cRect = container.getBoundingClientRect();
+            touchRing.style.left = (clientX - cRect.left) + 'px';
+            touchRing.style.top = (clientY - cRect.top) + 'px';
+            // Scale ring to brush size
+            const scale = rect.width / WIDTH;
+            const ringSize = Math.max(16, brushSize * scale * 2);
+            touchRing.style.width = ringSize + 'px';
+            touchRing.style.height = ringSize + 'px';
+            touchRing.style.opacity = '1';
+
+            clearTimeout(touchRingTimer);
+            touchRingTimer = setTimeout(() => {
+                touchRing.style.opacity = '0';
+            }, 800);
+        }
+
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (e.touches.length === 1) {
+                const t = e.touches[0];
+                const pos = getCanvasPos(t.clientX, t.clientY);
+                currentCanvasX = pos.x;
+                currentCanvasY = pos.y;
+                lastDrawX = pos.x;
+                lastDrawY = pos.y;
+                lastTouchX = t.clientX;
+                lastTouchY = t.clientY;
+                isDrawing = true;
+                drawButton = 0;
+                showTouchRing(t.clientX, t.clientY);
+            } else if (e.touches.length === 2) {
+                // Pinch to resize brush
+                isDrawing = false;
+                const dx = e.touches[0].clientX - e.touches[1].clientX;
+                const dy = e.touches[0].clientY - e.touches[1].clientY;
+                pinchStartDist = Math.hypot(dx, dy);
+                pinchStartBrush = brushSize;
+            }
+        }, { passive: false });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (e.touches.length === 1 && isDrawing) {
+                const t = e.touches[0];
+                const pos = getCanvasPos(t.clientX, t.clientY);
+                currentCanvasX = pos.x;
+                currentCanvasY = pos.y;
+                lastTouchX = t.clientX;
+                lastTouchY = t.clientY;
+                showTouchRing(t.clientX, t.clientY);
+            } else if (e.touches.length === 2) {
+                // Pinch gesture: adjust brush size
+                const dx = e.touches[0].clientX - e.touches[1].clientX;
+                const dy = e.touches[0].clientY - e.touches[1].clientY;
+                const dist = Math.hypot(dx, dy);
+                const ratio = dist / pinchStartDist;
+                const newSize = Math.min(12, Math.max(1, Math.round(pinchStartBrush * ratio)));
+                if (newSize !== brushSize) {
+                    brushSize = newSize;
+                    document.getElementById('m-brush-slider').value = brushSize;
+                    document.getElementById('m-brush-val').textContent = brushSize;
+                    document.getElementById('brush-slider').value = brushSize;
+                    document.getElementById('brush-val-display').textContent = brushSize;
+                }
+            }
+        }, { passive: false });
+
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            if (e.touches.length === 0) {
+                isDrawing = false;
+                lastDrawX = -1;
+                lastDrawY = -1;
+                touchRing.style.opacity = '0';
+            }
+        }, { passive: false });
+
+        canvas.addEventListener('touchcancel', (e) => {
+            isDrawing = false;
+            lastDrawX = -1;
+            lastDrawY = -1;
+            touchRing.style.opacity = '0';
+        });
+    }
+
+    // =============================================
+    // TOOLTIP (Desktop)
+    // =============================================
     function updateTooltipPosition() {
         brushTooltip.style.left = `${mouseX}px`;
         brushTooltip.style.top = `${mouseY}px`;
     }
 
-    // Tooltip trigger
     function showTooltip() {
         brushTooltip.innerText = `Size: ${brushSize}`;
         brushTooltip.style.opacity = "1";
         updateTooltipPosition();
-        
         clearTimeout(tooltipTimer);
-        tooltipTimer = setTimeout(() => {
-            brushTooltip.style.opacity = "0";
-        }, 1000);
+        tooltipTimer = setTimeout(() => { brushTooltip.style.opacity = "0"; }, 1000);
     }
 
-    window.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-        updateTooltipPosition();
-
-        const pos = getCanvasPos(e);
-        currentCanvasX = pos.x;
-        currentCanvasY = pos.y;
-    });
-
-    canvas.addEventListener('mousedown', (e) => {
-        isDrawing = true;
-        drawButton = e.button;
-        const pos = getCanvasPos(e);
-        currentCanvasX = pos.x;
-        currentCanvasY = pos.y;
-        lastDrawX = pos.x;
-        lastDrawY = pos.y;
-    });
-
-    window.addEventListener('mouseup', () => {
-        isDrawing = false;
-        lastDrawX = -1;
-        lastDrawY = -1;
-    });
-
-    canvas.addEventListener('contextmenu', e => e.preventDefault());
-
-    // Exclusive brush size handler via Scroll Wheel
-    window.addEventListener('wheel', (e) => {
-        if (e.target === canvas) {
-            e.preventDefault();
-            if (e.deltaY < 0) {
-                brushSize = Math.min(15, brushSize + 1); // Capped maximum for 240x135
-            } else {
-                brushSize = Math.max(1, brushSize - 1);
-            }
-            showTooltip();
-        }
-    }, { passive: false });
-
-    // Pixel-perfect conversion mapping CSS box directly to internal 240x135 coordinates
-    function getCanvasPos(e) {
+    // =============================================
+    // CANVAS COORDINATE MAPPING
+    // =============================================
+    function getCanvasPos(clientX, clientY) {
         const rect = canvas.getBoundingClientRect();
         const scaleX = WIDTH / rect.width;
         const scaleY = HEIGHT / rect.height;
         return {
-            x: Math.floor((e.clientX - rect.left) * scaleX),
-            y: Math.floor((e.clientY - rect.top) * scaleY)
+            x: Math.floor((clientX - rect.left) * scaleX),
+            y: Math.floor((clientY - rect.top) * scaleY)
         };
     }
 
-    // --- Active Spatial Chunking ---
+    // =============================================
+    // CHUNK SYSTEM
+    // =============================================
     function activatePixel(x, y) {
         if (x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT) {
             const cx = (x / CHUNK_SIZE) | 0;
@@ -837,8 +1443,7 @@
     function activateNeighbors(cx, cy) {
         for (let dy = -1; dy <= 1; dy++) {
             for (let dx = -1; dx <= 1; dx++) {
-                const nx = cx + dx;
-                const ny = cy + dy;
+                const nx = cx + dx, ny = cy + dy;
                 if (nx >= 0 && nx < CHUNKS_X && ny >= 0 && ny < CHUNKS_Y) {
                     chunkActiveNext[ny * CHUNKS_X + nx] = 1;
                 }
@@ -846,51 +1451,42 @@
         }
     }
 
-    // --- Draw / Erase Utilities ---
+    // =============================================
+    // DRAW UTILITIES
+    // =============================================
     function setPixel(x, y, element) {
         if (x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT) {
             const i = y * WIDTH + x;
-            
-            // Indestructible border cannot be overwritten unless cleared or erased
-            if (grid[i] === EL.BORDER && element !== EL.EMPTY) {
-                return;
-            }
-            
+            if (grid[i] === EL.BORDER && element !== EL.EMPTY) return;
             grid[i] = element;
-            extraData[i] = (element === EL.FIRE || element === EL.STEAM) ? (Math.random() * 30 + 20 | 0) : 0;
+            extraData[i] = (element === EL.FIRE || element === EL.STEAM || element === EL.METHANE) ? (Math.random() * 30 + 20 | 0) : 0;
             activatePixel(x, y);
         }
     }
 
     function drawCircle(cx, cy) {
-        // If drawButton is 2 (Right Click) or the user actively selected the Eraser (0), then erase
         const drawId = (drawButton === 2 || currentElement === EL.EMPTY) ? EL.EMPTY : currentElement;
         const radiusSq = brushSize * brushSize;
-        
+        const isSolid = (drawId === EL.WOOD || drawId === EL.STONE || drawId === EL.GLASS || drawId === EL.ICE || drawId === EL.OBSIDIAN);
+
         for (let y = -brushSize; y <= brushSize; y++) {
             for (let x = -brushSize; x <= brushSize; x++) {
                 if (x * x + y * y <= radiusSq) {
-                    const px = cx + x;
-                    const py = cy + y;
-                    
+                    const px = cx + x, py = cy + y;
                     if (px >= 0 && px < WIDTH && py >= 0 && py < HEIGHT) {
                         const targetId = grid[py * WIDTH + px];
-                        
-                        // Eraser overrides borders, normal drawing respects borders and static solids
+                        // Void deletes everything except border
+                        if (drawId === EL.VOID) {
+                            if (targetId !== EL.BORDER) setPixel(px, py, EL.EMPTY);
+                            continue;
+                        }
                         if (drawId !== EL.EMPTY) {
-                            if (targetId === EL.BORDER || targetId === EL.GLASS || targetId === EL.WOOD || targetId === EL.STONE) {
-                                continue;
-                            }
+                            if (targetId === EL.BORDER || targetId === EL.GLASS || targetId === EL.WOOD || targetId === EL.STONE || targetId === EL.OBSIDIAN) continue;
                         } else {
-                            // Eraser removes anything except border
                             if (targetId === EL.BORDER) continue;
                         }
-                        
-                        // Introduce pour physics noise
-                        if (drawId !== EL.EMPTY && drawId !== EL.WOOD && drawId !== EL.STONE && drawId !== EL.GLASS && drawId !== EL.ICE) {
-                            if (Math.random() > 0.25) {
-                                setPixel(px, py, drawId);
-                            }
+                        if (!isSolid && drawId !== EL.EMPTY) {
+                            if (Math.random() > 0.25) setPixel(px, py, drawId);
                         } else {
                             setPixel(px, py, drawId);
                         }
@@ -901,10 +1497,8 @@
     }
 
     function drawLine(x0, y0, x1, y1) {
-        const dx = Math.abs(x1 - x0);
-        const dy = Math.abs(y1 - y0);
-        const sx = (x0 < x1) ? 1 : -1;
-        const sy = (y0 < y1) ? 1 : -1;
+        const dx = Math.abs(x1 - x0), dy = Math.abs(y1 - y0);
+        const sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
         let err = dx - dy;
 
         while (true) {
@@ -916,47 +1510,36 @@
         }
     }
 
-    // Dispatches painting requests every frame
     function handleActiveSpawning() {
         if (isDrawing && currentCanvasX !== -1 && currentCanvasY !== -1) {
             if (lastDrawX === -1) lastDrawX = currentCanvasX;
             if (lastDrawY === -1) lastDrawY = currentCanvasY;
-            
             drawLine(lastDrawX, lastDrawY, currentCanvasX, currentCanvasY);
-            
             lastDrawX = currentCanvasX;
             lastDrawY = currentCanvasY;
         }
     }
 
-    // --- Chunky Cellular Automata Physics ---
-    function isEmpty(i) { return grid[i] === EL.EMPTY || grid[i] === EL.FIRE || grid[i] === EL.STEAM; }
-    function isLiquid(i) { return grid[i] === EL.WATER || grid[i] === EL.OIL || grid[i] === EL.ACID || grid[i] === EL.LAVA; }
-    function isFlammable(i) { return grid[i] === EL.WOOD || grid[i] === EL.PLANT || grid[i] === EL.OIL || grid[i] === EL.C4; }
+    // =============================================
+    // PHYSICS
+    // =============================================
+    function isEmpty(i) { return grid[i] === EL.EMPTY || grid[i] === EL.FIRE || grid[i] === EL.STEAM || grid[i] === EL.METHANE; }
+    function isLiquid(i) { return grid[i] === EL.WATER || grid[i] === EL.OIL || grid[i] === EL.ACID || grid[i] === EL.LAVA || grid[i] === EL.SALTWATER; }
+    function isFlammable(i) { return grid[i] === EL.WOOD || grid[i] === EL.PLANT || grid[i] === EL.OIL || grid[i] === EL.C4 || grid[i] === EL.GUNPOWDER || grid[i] === EL.ALGAE || grid[i] === EL.METHANE; }
+    function isPowder(i) { return grid[i] === EL.SAND || grid[i] === EL.SNOW || grid[i] === EL.MUD || grid[i] === EL.GUNPOWDER || grid[i] === EL.ASH || grid[i] === EL.SALT || grid[i] === EL.C4; }
 
     function move(src, dst) {
-        grid[dst] = grid[src];
-        extraData[dst] = extraData[src];
-        grid[src] = EL.EMPTY;
-        updated[dst] = 1;
-        
+        grid[dst] = grid[src]; extraData[dst] = extraData[src];
+        grid[src] = EL.EMPTY; updated[dst] = 1;
         activatePixel(src % WIDTH, (src / WIDTH) | 0);
         activatePixel(dst % WIDTH, (dst / WIDTH) | 0);
     }
 
     function swap(src, dst) {
-        const temp = grid[src];
-        const tempEx = extraData[src];
-        
-        grid[src] = grid[dst];
-        extraData[src] = extraData[dst];
-        
-        grid[dst] = temp;
-        extraData[dst] = tempEx;
-        
-        updated[dst] = 1;
-        updated[src] = 1;
-        
+        const temp = grid[src], tempEx = extraData[src];
+        grid[src] = grid[dst]; extraData[src] = extraData[dst];
+        grid[dst] = temp; extraData[dst] = tempEx;
+        updated[dst] = 1; updated[src] = 1;
         activatePixel(src % WIDTH, (src / WIDTH) | 0);
         activatePixel(dst % WIDTH, (dst / WIDTH) | 0);
     }
@@ -964,18 +1547,15 @@
     function stepPhysics() {
         updated.fill(0);
         chunkActiveNext.fill(0);
-        
+
         for (let cy = CHUNKS_Y - 1; cy >= 0; cy--) {
             for (let cx = 0; cx < CHUNKS_X; cx++) {
                 const chunkIdx = cy * CHUNKS_X + cx;
                 if (!chunkActiveCurrent[chunkIdx]) continue;
-                
+
                 let chunkChanged = false;
-                const startY = cy * CHUNK_SIZE;
-                const endY = Math.min(HEIGHT, startY + CHUNK_SIZE);
-                const startX = cx * CHUNK_SIZE;
-                const endX = Math.min(WIDTH, startX + CHUNK_SIZE);
-                
+                const startY = cy * CHUNK_SIZE, endY = Math.min(HEIGHT, startY + CHUNK_SIZE);
+                const startX = cx * CHUNK_SIZE, endX = Math.min(WIDTH, startX + CHUNK_SIZE);
                 const dir = Math.random() > 0.5 ? 1 : -1;
                 const iterateStartX = dir === 1 ? startX : endX - 1;
                 const iterateEndX = dir === 1 ? endX : startX - 1;
@@ -984,179 +1564,220 @@
                     for (let x = iterateStartX; x !== iterateEndX; x += dir) {
                         const i = y * WIDTH + x;
                         const id = grid[i];
-
                         if (id === EL.EMPTY || id === EL.BORDER || updated[i]) continue;
 
                         chunkChanged = true;
 
-                        const below = i + WIDTH;
-                        const bLeft = below - 1;
-                        const bRight = below + 1;
-                        const left = i - 1;
-                        const right = i + 1;
-                        const up = i - WIDTH;
+                        const below = i + WIDTH, bLeft = below - 1, bRight = below + 1;
+                        const left = i - 1, right = i + 1, up = i - WIDTH;
 
-                        // --- POWDERS (Sand, C-4) ---
-                        if (id === EL.SAND || id === EL.C4) {
+                        // POWDERS (Sand, C4, Snow, Gunpowder, Ash, Salt — all fall the same way)
+                        if (id === EL.SAND || id === EL.C4 || id === EL.SNOW || id === EL.GUNPOWDER || id === EL.ASH || id === EL.SALT) {
+                            // Snow melts near fire/lava
+                            if (id === EL.SNOW) {
+                                const neighbors = [below, up, left, right, bLeft, bRight];
+                                for (let n of neighbors) {
+                                    if (n >= 0 && n < WIDTH * HEIGHT) {
+                                        const t = grid[n];
+                                        if (t === EL.FIRE || t === EL.LAVA) {
+                                            if (Math.random() > 0.92) { grid[i] = EL.WATER; activatePixel(x, y); break; }
+                                        }
+                                    }
+                                }
+                                if (grid[i] !== EL.SNOW) continue;
+                            }
+                            // Salt dissolves in water → saltwater
+                            if (id === EL.SALT) {
+                                const neighbors = [below, up, left, right];
+                                for (let n of neighbors) {
+                                    if (n >= 0 && n < WIDTH * HEIGHT && grid[n] === EL.WATER) {
+                                        if (Math.random() > 0.97) {
+                                            grid[i] = EL.SALTWATER; grid[n] = EL.SALTWATER;
+                                            activatePixel(x, y); activatePixel(n % WIDTH, (n / WIDTH) | 0); break;
+                                        }
+                                    }
+                                }
+                                if (grid[i] !== EL.SALT) continue;
+                                // Salt also melts ice faster
+                                for (let n of neighbors) {
+                                    if (n >= 0 && n < WIDTH * HEIGHT && grid[n] === EL.ICE) {
+                                        if (Math.random() > 0.985) { grid[n] = EL.WATER; activatePixel(n % WIDTH, (n / WIDTH) | 0); }
+                                    }
+                                }
+                            }
+
                             if (y < HEIGHT - 1) {
-                                if (isEmpty(below)) { 
-                                    move(i, below); 
-                                } else if (isLiquid(below)) { 
-                                    swap(i, below); 
-                                } else {
+                                if (isEmpty(below)) { move(i, below); }
+                                else if (isLiquid(below)) { swap(i, below); }
+                                else {
                                     const canL = x > 0 && isEmpty(bLeft);
                                     const canR = x < WIDTH - 1 && isEmpty(bRight);
-                                    
-                                    if (canL && canR) { 
-                                        move(i, Math.random() > 0.5 ? bLeft : bRight); 
-                                    } else if (canL) { 
-                                        move(i, bLeft); 
-                                    } else if (canR) { 
-                                        move(i, bRight); 
-                                    } else {
-                                        const liqL = x > 0 && isLiquid(bLeft);
-                                        const liqR = x < WIDTH - 1 && isLiquid(bRight);
-                                        if (liqL && liqR) { 
-                                            swap(i, Math.random() > 0.5 ? bLeft : bRight); 
-                                        } else if (liqL) { 
-                                            swap(i, bLeft); 
-                                        } else if (liqR) { 
-                                            swap(i, bRight); 
+                                    if (canL && canR) { move(i, Math.random() > 0.5 ? bLeft : bRight); }
+                                    else if (canL) { move(i, bLeft); }
+                                    else if (canR) { move(i, bRight); }
+                                }
+                            }
+                        }
+
+                        // MUD — falls slowly, forms when sand+water react
+                        else if (id === EL.MUD) {
+                            if (y < HEIGHT - 1 && Math.random() > 0.5) {
+                                if (isEmpty(below)) { move(i, below); }
+                                else {
+                                    const canL = x > 0 && isEmpty(bLeft);
+                                    const canR = x < WIDTH - 1 && isEmpty(bRight);
+                                    if (canL && canR) { move(i, Math.random() > 0.5 ? bLeft : bRight); }
+                                    else if (canL) { move(i, bLeft); }
+                                    else if (canR) { move(i, bRight); }
+                                }
+                            }
+                        }
+
+                        // ACID CORROSION
+                        else if (id === EL.ACID) {
+                            const neighbors = [below, up, left, right, bLeft, bRight, i - WIDTH - 1, i - WIDTH + 1];
+                            for (let n of neighbors) {
+                                if (n >= 0 && n < WIDTH * HEIGHT) {
+                                    const t = grid[n];
+                                    if (t !== EL.EMPTY && t !== EL.ACID && t !== EL.BORDER && t !== EL.GLASS) {
+                                        if (Math.random() > 0.97) {
+                                            grid[n] = EL.EMPTY; activatePixel(n % WIDTH, (n / WIDTH) | 0);
+                                            if (Math.random() > 0.5) { grid[i] = EL.EMPTY; activatePixel(x, y); break; }
+                                        }
+                                    }
+                                }
+                            }
+                            if (grid[i] !== EL.ACID) continue;
+
+                            if (y < HEIGHT - 1) {
+                                const spreadRange = 3;
+                                if (isEmpty(below)) { move(i, below); }
+                                else {
+                                    let handled = false;
+                                    const sideDir = Math.random() > 0.5 ? 1 : -1;
+                                    for (let step = 1; step <= spreadRange; step++) {
+                                        const bSide = below + sideDir * step;
+                                        if (bSide < 0 || bSide >= WIDTH * HEIGHT) break;
+                                        if (isEmpty(bSide)) { move(i, bSide); handled = true; break; }
+                                        else if (!isLiquid(bSide)) break;
+                                    }
+                                    if (!handled) {
+                                        for (let step = 1; step <= spreadRange; step++) {
+                                            const targetX = x - sideDir * step;
+                                            if (targetX < 0 || targetX >= WIDTH) break;
+                                            const targetIdx = y * WIDTH + targetX;
+                                            if (isEmpty(targetIdx)) { move(i, targetIdx); break; }
+                                            else if (!isLiquid(targetIdx)) break;
                                         }
                                     }
                                 }
                             }
                         }
 
-                        // --- LIQUIDS (Water, Oil, Acid, Lava) ---
-                        else if (id === EL.WATER || id === EL.OIL || id === EL.ACID || id === EL.LAVA) {
-                            
-                            // Reactions
-                            if (id === EL.ACID) {
-                                const neighbors = [below, up, left, right];
-                                let dissolved = false;
-                                for (let n of neighbors) {
-                                    if (n >= 0 && n < WIDTH * HEIGHT && grid[n] !== EL.EMPTY && grid[n] !== EL.ACID && grid[n] !== EL.GLASS && grid[n] !== EL.BORDER) {
-                                        if (Math.random() > 0.25) {
-                                            grid[n] = EL.EMPTY; 
-                                            activatePixel(n % WIDTH, (n / WIDTH) | 0);
-                                            dissolved = true;
+                        // ICE CRYSTALLIZATION
+                        else if (id === EL.ICE) {
+                            const neighbors = [below, up, left, right];
+                            for (let n of neighbors) {
+                                if (n >= 0 && n < WIDTH * HEIGHT && grid[n] === EL.WATER) {
+                                    if (Math.random() > 0.997) {
+                                        grid[n] = EL.ICE; activatePixel(n % WIDTH, (n / WIDTH) | 0);
+                                    }
+                                }
+                            }
+                        }
+
+                        // LAVA COOLING → obsidian on water contact
+                        else if (id === EL.LAVA) {
+                            const neighbors = [below, up, left, right];
+                            for (let n of neighbors) {
+                                if (n >= 0 && n < WIDTH * HEIGHT) {
+                                    if (grid[n] === EL.WATER || grid[n] === EL.SALTWATER) {
+                                        grid[i] = EL.OBSIDIAN; grid[n] = EL.STEAM;
+                                        extraData[n] = Math.random() * 30 + 20 | 0;
+                                        activatePixel(x, y); activatePixel(n % WIDTH, (n / WIDTH) | 0);
+                                        break;
+                                    }
+                                }
+                            }
+                            if (grid[i] !== EL.LAVA) continue;
+
+                            if (y < HEIGHT - 1) {
+                                const spreadRange = 2;
+                                if (isEmpty(below)) { move(i, below); }
+                                else {
+                                    let handled = false;
+                                    const sideDir = Math.random() > 0.5 ? 1 : -1;
+                                    for (let step = 1; step <= spreadRange; step++) {
+                                        const bSide = below + sideDir * step;
+                                        if (bSide < 0 || bSide >= WIDTH * HEIGHT) break;
+                                        if (isEmpty(bSide)) { move(i, bSide); handled = true; break; }
+                                        else if (!isLiquid(bSide)) break;
+                                    }
+                                    if (!handled) {
+                                        for (let step = 1; step <= spreadRange; step++) {
+                                            const targetX = x - sideDir * step;
+                                            if (targetX < 0 || targetX >= WIDTH) break;
+                                            const targetIdx = y * WIDTH + targetX;
+                                            if (isEmpty(targetIdx)) { move(i, targetIdx); break; }
+                                            else if (!isLiquid(targetIdx)) break;
                                         }
                                     }
                                 }
-                                if (dissolved) {
-                                    grid[i] = EL.EMPTY;
-                                    activatePixel(x, y);
-                                    continue;
-                                }
                             }
+                        }
 
-                            if (id === EL.LAVA) {
+                        // WATER, OIL & SALTWATER
+                        else if (id === EL.WATER || id === EL.OIL || id === EL.SALTWATER) {
+                            if (id === EL.WATER || id === EL.SALTWATER) {
                                 const neighbors = [below, up, left, right];
                                 for (let n of neighbors) {
                                     if (n >= 0 && n < WIDTH * HEIGHT) {
-                                        const nId = grid[n];
-                                        if (nId === EL.WATER) {
-                                            grid[i] = EL.STONE; 
-                                            grid[n] = EL.STEAM; 
-                                            extraData[n] = Math.random() * 30 + 30 | 0;
-                                            activatePixel(i % WIDTH, (i / WIDTH) | 0);
-                                            activatePixel(n % WIDTH, (n / WIDTH) | 0);
-                                            break;
-                                        } else if (nId === EL.ICE) {
-                                            grid[n] = EL.WATER;
-                                            activatePixel(n % WIDTH, (n / WIDTH) | 0);
-                                        } else if (isFlammable(n)) {
-                                            grid[n] = EL.FIRE;
-                                            extraData[n] = Math.random() * 20 + 20 | 0;
-                                            activatePixel(n % WIDTH, (n / WIDTH) | 0);
+                                        const t = grid[n];
+                                        if (t === EL.ICE && Math.random() > 0.9997) {
+                                            grid[i] = EL.ICE; activatePixel(x, y); break;
+                                        }
+                                        // Water + sand → mud (rare)
+                                        if (id === EL.WATER && t === EL.SAND && Math.random() > 0.998) {
+                                            grid[n] = EL.MUD; grid[i] = EL.EMPTY;
+                                            activatePixel(n % WIDTH, (n / WIDTH) | 0); activatePixel(x, y); break;
                                         }
                                     }
                                 }
-                                if (grid[i] === EL.STONE) continue;
+                                if (grid[i] === EL.EMPTY || grid[i] === EL.ICE) continue;
                             }
 
-                            // Water Freezing Interaction when touching Ice
-                            if (id === EL.WATER) {
-                                let hasIceNeighbor = false;
-                                if (y < HEIGHT - 1 && grid[below] === EL.ICE) hasIceNeighbor = true;
-                                if (y > 0 && grid[up] === EL.ICE) hasIceNeighbor = true;
-                                if (x > 0 && grid[left] === EL.ICE) hasIceNeighbor = true;
-                                if (x < WIDTH - 1 && grid[right] === EL.ICE) hasIceNeighbor = true;
-
-                                if (hasIceNeighbor && Math.random() > 0.15) {
-                                    grid[i] = EL.ICE;
-                                    activatePixel(x, y);
-                                    // Wake up direct neighbors to spread freeze smoothly
-                                    if (y < HEIGHT - 1) activatePixel(x, y + 1);
-                                    if (y > 0) activatePixel(x, y - 1);
-                                    if (x > 0) activatePixel(x - 1, y);
-                                    if (x < WIDTH - 1) activatePixel(x + 1, y);
-                                    continue;
-                                }
-                            }
-
-                            // Dynamic Lateral Displacement (Fluid spread speed adjusted for 360p viewport)
                             if (y < HEIGHT - 1) {
-                                if (isEmpty(below)) { 
-                                    move(i, below); 
-                                } else if (id === EL.WATER && grid[below] === EL.OIL) {
-                                    swap(i, below);
-                                } else if (id === EL.LAVA && (grid[below] === EL.WATER || grid[below] === EL.OIL)) {
-                                    swap(i, below);
-                                } else {
-                                    const canL = x > 0 && isEmpty(bLeft);
-                                    const canR = x < WIDTH - 1 && isEmpty(bRight);
-                                    
-                                    if (canL && canR) { 
-                                        move(i, Math.random() > 0.5 ? bLeft : bRight); 
-                                    } else if (canL) { 
-                                        move(i, bLeft); 
-                                    } else if (canR) { 
-                                        move(i, bRight); 
-                                    } else {
-                                        // Dynamic spread searches
-                                        const sideDir = Math.random() > 0.5 ? 1 : -1;
-                                        let handled = false;
-                                        const spreadRange = id === EL.LAVA ? 1 : 5;
-                                        
+                                const spreadRange = (id === EL.OIL) ? 3 : 4;
+                                if (isEmpty(below)) { move(i, below); }
+                                else if (id === EL.OIL && (grid[below] === EL.WATER || grid[below] === EL.SALTWATER)) { swap(i, below); }
+                                else {
+                                    let handled = false;
+                                    const sideDir = Math.random() > 0.5 ? 1 : -1;
+                                    for (let step = 1; step <= spreadRange; step++) {
+                                        const bSide = below + sideDir * step;
+                                        if (bSide < 0 || bSide >= WIDTH * HEIGHT) break;
+                                        if (isEmpty(bSide)) { move(i, bSide); handled = true; break; }
+                                        else if (!isLiquid(bSide)) break;
+                                    }
+                                    if (!handled) {
                                         for (let step = 1; step <= spreadRange; step++) {
-                                            const targetX = x + sideDir * step;
+                                            const targetX = x - sideDir * step;
                                             if (targetX < 0 || targetX >= WIDTH) break;
                                             const targetIdx = y * WIDTH + targetX;
-                                            if (isEmpty(targetIdx)) {
-                                                move(i, targetIdx);
-                                                handled = true;
-                                                break;
-                                            } else if (!isLiquid(targetIdx)) {
-                                                break;
-                                            }
-                                        }
-                                        if (!handled) {
-                                            for (let step = 1; step <= spreadRange; step++) {
-                                                const targetX = x - sideDir * step;
-                                                if (targetX < 0 || targetX >= WIDTH) break;
-                                                const targetIdx = y * WIDTH + targetX;
-                                                if (isEmpty(targetIdx)) {
-                                                    move(i, targetIdx);
-                                                    break;
-                                                } else if (!isLiquid(targetIdx)) {
-                                                    break;
-                                                }
-                                            }
+                                            if (isEmpty(targetIdx)) { move(i, targetIdx); break; }
+                                            else if (!isLiquid(targetIdx)) break;
                                         }
                                     }
                                 }
                             }
                         }
 
-                        // --- GASES & EXOTICS (Fire, Steam) ---
+                        // FIRE & STEAM
                         else if (id === EL.FIRE || id === EL.STEAM) {
                             extraData[i]--;
                             if (extraData[i] <= 0) {
                                 grid[i] = (id === EL.STEAM && Math.random() > 0.75) ? EL.WATER : EL.EMPTY;
-                                activatePixel(x, y);
-                                continue;
+                                activatePixel(x, y); continue;
                             }
 
                             if (id === EL.FIRE) {
@@ -1166,12 +1787,12 @@
                                         const targetId = grid[n];
                                         if (isFlammable(n)) {
                                             if (targetId === EL.C4) {
-                                                // High-impact localized detonations
+                                                // C4: large explosion
                                                 for (let rY = -8; rY <= 8; rY++) {
                                                     for (let rX = -8; rX <= 8; rX++) {
                                                         if (rX * rX + rY * rY < 64) {
                                                             const exIdx = i + rX + rY * WIDTH;
-                                                            if (exIdx >= 0 && exIdx < WIDTH * HEIGHT && grid[exIdx] !== EL.GLASS && grid[exIdx] !== EL.BORDER) {
+                                                            if (exIdx >= 0 && exIdx < WIDTH * HEIGHT && grid[exIdx] !== EL.GLASS && grid[exIdx] !== EL.BORDER && grid[exIdx] !== EL.OBSIDIAN) {
                                                                 grid[exIdx] = EL.FIRE;
                                                                 extraData[exIdx] = Math.random() * 20 + 15 | 0;
                                                                 activatePixel(exIdx % WIDTH, (exIdx / WIDTH) | 0);
@@ -1179,17 +1800,50 @@
                                                         }
                                                     }
                                                 }
+                                            } else if (targetId === EL.GUNPOWDER) {
+                                                // Gunpowder: medium explosion
+                                                for (let rY = -5; rY <= 5; rY++) {
+                                                    for (let rX = -5; rX <= 5; rX++) {
+                                                        if (rX * rX + rY * rY < 25) {
+                                                            const exIdx = i + rX + rY * WIDTH;
+                                                            if (exIdx >= 0 && exIdx < WIDTH * HEIGHT && grid[exIdx] !== EL.GLASS && grid[exIdx] !== EL.BORDER && grid[exIdx] !== EL.OBSIDIAN) {
+                                                                grid[exIdx] = EL.FIRE;
+                                                                extraData[exIdx] = Math.random() * 15 + 10 | 0;
+                                                                activatePixel(exIdx % WIDTH, (exIdx / WIDTH) | 0);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            } else if (targetId === EL.METHANE) {
+                                                // Methane: ignites into fire ball
+                                                for (let rY = -4; rY <= 4; rY++) {
+                                                    for (let rX = -4; rX <= 4; rX++) {
+                                                        if (rX * rX + rY * rY < 16) {
+                                                            const exIdx = i + rX + rY * WIDTH;
+                                                            if (exIdx >= 0 && exIdx < WIDTH * HEIGHT) {
+                                                                grid[exIdx] = EL.FIRE;
+                                                                extraData[exIdx] = Math.random() * 12 + 8 | 0;
+                                                                activatePixel(exIdx % WIDTH, (exIdx / WIDTH) | 0);
+                                                            }
+                                                        }
+                                                    }
+                                                }
                                             } else {
-                                                grid[n] = EL.FIRE;
-                                                extraData[n] = Math.random() * 25 + 20 | 0;
+                                                // Wood burns → ash remains sometimes
+                                                if (targetId === EL.WOOD && Math.random() > 0.7) {
+                                                    grid[n] = EL.ASH;
+                                                } else {
+                                                    grid[n] = EL.FIRE;
+                                                    extraData[n] = Math.random() * 25 + 20 | 0;
+                                                }
                                                 activatePixel(n % WIDTH, (n / WIDTH) | 0);
                                             }
-                                        } else if (targetId === EL.WATER) {
+                                        } else if (targetId === EL.WATER || targetId === EL.SALTWATER) {
                                             grid[i] = EL.STEAM;
                                             extraData[i] = Math.random() * 25 + 25 | 0;
                                             activatePixel(i % WIDTH, (i / WIDTH) | 0);
                                             break;
-                                        } else if (targetId === EL.ICE) {
+                                        } else if (targetId === EL.ICE || targetId === EL.SNOW) {
                                             grid[n] = EL.WATER;
                                             activatePixel(n % WIDTH, (n / WIDTH) | 0);
                                         }
@@ -1198,65 +1852,97 @@
                                 if (grid[i] === EL.STEAM) continue;
                             }
 
-                            // Rising Drift
                             if (y > 0) {
-                                const upL = up - 1;
-                                const upR = up + 1;
+                                const upL = up - 1, upR = up + 1;
                                 let floated = false;
-
-                                if (isEmpty(up)) { 
-                                    move(i, up); 
-                                    floated = true; 
-                                } else {
+                                if (isEmpty(up)) { move(i, up); floated = true; }
+                                else {
                                     const canL = x > 0 && isEmpty(upL);
                                     const canR = x < WIDTH - 1 && isEmpty(upR);
-                                    if (canL && canR) { 
-                                        move(i, Math.random() > 0.5 ? upL : upR); 
-                                        floated = true; 
-                                    } else if (canL) { 
-                                        move(i, upL); 
-                                        floated = true; 
-                                    } else if (canR) { 
-                                        move(i, upR); 
-                                        floated = true; 
-                                    }
+                                    if (canL && canR) { move(i, Math.random() > 0.5 ? upL : upR); floated = true; }
+                                    else if (canL) { move(i, upL); floated = true; }
+                                    else if (canR) { move(i, upR); floated = true; }
                                 }
-
                                 if (!floated && Math.random() > 0.4) {
                                     const canL = x > 0 && isEmpty(left);
                                     const canR = x < WIDTH - 1 && isEmpty(right);
-                                    if (canL && canR) { 
-                                        move(i, Math.random() > 0.5 ? left : right); 
-                                    } else if (canL) { 
-                                        move(i, left); 
-                                    } else if (canR) { 
-                                        move(i, right); 
+                                    if (canL && canR) { move(i, Math.random() > 0.5 ? left : right); }
+                                    else if (canL) { move(i, left); }
+                                    else if (canR) { move(i, right); }
+                                }
+                            }
+                        }
+
+                        // PLANT GROWTH
+                        else if (id === EL.PLANT) {
+                            if (Math.random() > 0.94) {
+                                const neighbors = [below, up, left, right];
+                                for (let n of neighbors) {
+                                    if (n >= 0 && n < WIDTH * HEIGHT && grid[n] === EL.WATER) {
+                                        grid[n] = EL.PLANT;
+                                        activatePixel(n % WIDTH, (n / WIDTH) | 0);
+                                        break;
                                     }
                                 }
                             }
                         }
 
-                        // --- PLANT GROWTH SYSTEM ---
-                        else if (id === EL.PLANT) {
-                            if (Math.random() > 0.94) {
-                                const neighbors = [below, up, left, right];
+                        // METHANE — rises like steam, ignites on contact with fire
+                        else if (id === EL.METHANE) {
+                            extraData[i]--;
+                            if (extraData[i] <= 0) {
+                                grid[i] = EL.EMPTY;
+                                activatePixel(x, y); continue;
+                            }
+                            if (y > 0) {
+                                const upL = up - 1, upR = up + 1;
+                                let floated = false;
+                                if (grid[up] === EL.EMPTY) { move(i, up); floated = true; }
+                                else {
+                                    const canL = x > 0 && grid[upL] === EL.EMPTY;
+                                    const canR = x < WIDTH - 1 && grid[upR] === EL.EMPTY;
+                                    if (canL && canR) { move(i, Math.random() > 0.5 ? upL : upR); floated = true; }
+                                    else if (canL) { move(i, upL); floated = true; }
+                                    else if (canR) { move(i, upR); floated = true; }
+                                }
+                                if (!floated && Math.random() > 0.5) {
+                                    const canL = x > 0 && grid[left] === EL.EMPTY;
+                                    const canR = x < WIDTH - 1 && grid[right] === EL.EMPTY;
+                                    if (canL && canR) { move(i, Math.random() > 0.5 ? left : right); }
+                                    else if (canL) { move(i, left); }
+                                    else if (canR) { move(i, right); }
+                                }
+                            }
+                        }
+
+                        // ALGAE — grows in water, fills adjacent water cells
+                        else if (id === EL.ALGAE) {
+                            if (Math.random() > 0.96) {
+                                const neighbors = [below, up, left, right, bLeft, bRight];
                                 for (let n of neighbors) {
-                                    if (n >= 0 && n < WIDTH * HEIGHT) {
-                                        if (grid[n] === EL.WATER) {
-                                            grid[n] = EL.PLANT;
-                                            activatePixel(n % WIDTH, (n / WIDTH) | 0);
-                                            break;
-                                        }
+                                    if (n >= 0 && n < WIDTH * HEIGHT && (grid[n] === EL.WATER || grid[n] === EL.SALTWATER)) {
+                                        grid[n] = EL.ALGAE;
+                                        activatePixel(n % WIDTH, (n / WIDTH) | 0);
+                                        break;
                                     }
+                                }
+                            }
+                        }
+
+                        // VOID — actively consumes all adjacent non-border elements
+                        else if (id === EL.VOID) {
+                            const neighbors = [below, up, left, right, bLeft, bRight, i - WIDTH - 1, i - WIDTH + 1];
+                            for (let n of neighbors) {
+                                if (n >= 0 && n < WIDTH * HEIGHT && grid[n] !== EL.EMPTY && grid[n] !== EL.BORDER && grid[n] !== EL.VOID) {
+                                    grid[n] = EL.EMPTY;
+                                    activatePixel(n % WIDTH, (n / WIDTH) | 0);
                                 }
                             }
                         }
                     }
                 }
 
-                if (chunkChanged) {
-                    activateNeighbors(cx, cy);
-                }
+                if (chunkChanged) activateNeighbors(cx, cy);
             }
         }
 
@@ -1265,36 +1951,46 @@
         chunkActiveNext = temp;
     }
 
-    // --- Fast Color Injection Frame Render ---
+    // =============================================
+    // RENDER
+    // =============================================
     let lastTime = performance.now();
     let frameCount = 0;
-    
+
     function render() {
         let activeCount = 0;
-        
         for (let i = 0; i < WIDTH * HEIGHT; i++) {
             const el = grid[i];
             if (el !== EL.EMPTY) {
                 if (el !== EL.BORDER) activeCount++;
                 let color = COLORS[el];
-                
-                // Add retro active grain jitter
                 if (el === EL.FIRE || el === EL.LAVA) {
-                    if (Math.random() > 0.6) {
-                         color = (el === EL.FIRE) ? 0xFF00bbff : 0xFF0055ff;
-                    }
+                    if (Math.random() > 0.6) color = (el === EL.FIRE) ? 0xFF00bbff : 0xFF0055ff;
                 } else if (el === EL.WATER) {
-                    if (Math.random() > 0.97) color = 0xFFc59022; // Micro glimmers
+                    if (Math.random() > 0.97) color = 0xFFc59022;
+                } else if (el === EL.SALTWATER) {
+                    if (Math.random() > 0.96) color = 0xFFb8d0e0;
                 } else if (el === EL.PLANT) {
                     if (Math.random() > 0.95) color = 0xFF1b9e1b;
+                } else if (el === EL.ALGAE) {
+                    if (Math.random() > 0.93) color = 0xFF0a6020;
+                } else if (el === EL.SNOW) {
+                    if (Math.random() > 0.92) color = 0xFFe0e0f0;
+                } else if (el === EL.METHANE) {
+                    if (Math.random() > 0.7) color = 0xFF90e0b8;
+                } else if (el === EL.OBSIDIAN) {
+                    if (Math.random() > 0.95) color = 0xFF282838;
+                } else if (el === EL.GUNPOWDER) {
+                    if (Math.random() > 0.95) color = 0xFF404060;
+                } else if (el === EL.VOID) {
+                    // Void pulses with a faint purple shimmer
+                    if (Math.random() > 0.85) color = 0xFF200020;
                 }
-
                 data32[i] = color;
             } else {
-                data32[i] = 0xFF000000; // Deep space black
+                data32[i] = 0xFF000000;
             }
         }
-
         ctx.putImageData(imgData, 0, 0);
         return activeCount;
     }
@@ -1308,7 +2004,9 @@
         if (currentTime - lastTime >= 500) {
             const fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
             fpsCounter.innerText = fps;
+            fpsCounterM.innerText = fps;
             particleCounter.innerText = activeCount.toLocaleString();
+            particleCounterM.innerText = activeCount > 999 ? (activeCount / 1000).toFixed(1) + 'k' : activeCount;
             frameCount = 0;
             lastTime = currentTime;
         }
